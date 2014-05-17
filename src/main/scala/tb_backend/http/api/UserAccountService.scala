@@ -31,11 +31,12 @@ import model.TBJsonProtocol._
 import tb_backend.util._
 
 trait UserAccountService extends HttpService with Config 
-																						 with Tables
 																						 with TokenGenerator{
 
 	private implicit val timeout = Timeout(15 seconds)
 	private val log = LoggerFactory.getLogger(classOf[UserAccountService])
+
+	import tb_backend.model.Tables
 
 	def login = (context: ActorContext) => detach(){
 			log.debug("We are actuallz here....")
@@ -97,7 +98,21 @@ trait UserAccountService extends HttpService with Config
 	//def resetPassword // GET
 
 	def userData = (uid: String) => detach(){
-		complete(StatusCodes.OK)
+		import tb_backend.model.TBJsonProtocol.UserRowJsonFormat._
+		val q = for {
+			u <- User if (u.uid === uid.toLong)
+		} yield (u.uid, u.email, u.username, u.firstname, u.lastname)
+
+		val res = db.withSession{session =>
+			q.list()(session)
+		}
+		res.headOption match {
+			case Some(u) => 
+				val user = UserRow(u._1, u._2, u._3, "", u._4, u._5)
+				respondWithStatus(StatusCodes.OK)
+				complete(user.toJson.toString)
+			case None => complete(StatusCodes.NotFound)
+		}
 	}
 
 }

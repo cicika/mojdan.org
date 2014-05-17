@@ -5,11 +5,6 @@ case class LoginResponse(uid: Long, token: String)
 case class Register(username: String, password: String, email: String, connector: String)
 
 
-// AUTO-GENERATED Slick data model
-/** Stand-alone Slick data model for immediate use */
-object Tables extends {
-} with Tables
-
 /** Slick data model trait for extension, choice of backend or usage in the cake pattern. (Make sure to initialize this late.) */
 trait Tables {
   

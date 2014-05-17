@@ -10,7 +10,7 @@ import scala.util.{Try, Success, Failure}
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-object TBJsonProtocol extends DefaultJsonProtocol {
+object TBJsonProtocol extends DefaultJsonProtocol with Tables{
 
 	//implicit val login = jsonFormat2(Login)
 	//implicit val register = jsonFormat4(Register)
@@ -39,6 +39,24 @@ object TBJsonProtocol extends DefaultJsonProtocol {
       case r: Map[String, JsValue] => Register(r("username").convertTo[String], r("password").convertTo[String],
                                                r("email").convertTo[String], r("connector").convertTo[String])
       case _ => throw new DeserializationException("Register expected...")
+    }
+  }
+
+  implicit object UserRowJsonFormat extends RootJsonFormat[UserRow] {
+    def write(u: UserRow) = JsObject(
+      "uid" -> JsNumber(u.uid),
+      "username" -> JsString(u.username),
+      "password" -> JsString(""),
+      "email" -> JsString(u.email),
+      "firstname" -> JsString(u.firstname.getOrElse("")),
+      "lastname" -> JsString(u.lastname.getOrElse(""))
+      )
+
+    def read(value: JsValue) = value.asJsObject.fields match {
+      case u: Map[String, JsValue] =>
+        UserRow(u("uid").convertTo[Int], u("email").convertTo[String], u("username").convertTo[String], "", 
+          Some(u("firstname").convertTo[String]), Some(u("lastname").convertTo[String]))
+      case _ => throw new DeserializationException("UserRow expected")
     }
   }
  
