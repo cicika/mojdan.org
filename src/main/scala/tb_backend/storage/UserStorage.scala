@@ -1,3 +1,6 @@
 package tb_backend.storage
 
-trait UserStorage {}
+trait UserStorage {
+
+	
+}

@@ -18,26 +18,28 @@ seq(GitProject.gitSettings: _*)
 
 libraryDependencies ++= {
 	Seq(		
-		"com.typesafe.akka" %% "akka-actor" % "2.2.3" % "compile",
-        "com.typesafe.akka" %% "akka-agent" % "2.2.3" % "compile",
-        "com.typesafe.akka" %% "akka-remote" % "2.2.3" % "compile",
-        "com.typesafe.akka" %% "akka-kernel" % "2.2.3" % "compile",
-        "com.typesafe.akka" %% "akka-slf4j" % "2.2.3" % "compile",
-        "io.spray" % "spray-http" % "1.2.0" % "compile",
-        "io.spray" % "spray-routing" % "1.2.0" % "compile",
-        "io.spray" % "spray-can" % "1.2.0" % "compile",
-        "io.spray" % "spray-util" % "1.2.0" % "compile",
-        "io.spray" % "spray-client" % "1.2.0" % "compile",
+		"com.typesafe.akka" %% "akka-actor" % "2.1.4" % "compile",
+        "com.typesafe.akka" %% "akka-agent" % "2.1.4" % "compile",
+        "com.typesafe.akka" %% "akka-remote" % "2.1.4" % "compile",
+        "com.typesafe.akka" %% "akka-kernel" % "2.1.4" % "compile",
+        "com.typesafe.akka" %% "akka-slf4j" % "2.1.4" % "compile",
+        "io.spray" % "spray-http" % "1.1.0" % "compile",
+        "io.spray" % "spray-routing" % "1.1.0" % "compile",
+        "io.spray" % "spray-can" % "1.1.0" % "compile",
+        "io.spray" % "spray-util" % "1.1.0" % "compile",
+        "io.spray" % "spray-client" % "1.1.0" % "compile",
         "io.spray" %  "spray-json_2.10" % "1.2.5" % "compile",
-         "com.typesafe.slick" %% "slick" % "2.0.2"
+         "com.typesafe.slick" %% "slick" % "2.0.2",
+         "ch.qos.logback" % "logback-classic" % "1.0.13" % "compile",
+         "postgresql" % "postgresql" % "9.1-901.jdbc4"
 	)
 }
 
 libraryDependencies ++= {
      Seq(
         "org.scalatest" %% "scalatest" % "2.0" % "test",
-        "com.typesafe.akka" %% "akka-testkit" % "2.2.3" % "test",
-        "io.spray" % "spray-testkit" % "1.2.0" % "test"
+        "com.typesafe.akka" %% "akka-testkit" % "2.1.4" % "test",
+        "io.spray" % "spray-testkit" % "1.1.0" % "test"
     )
 }
 

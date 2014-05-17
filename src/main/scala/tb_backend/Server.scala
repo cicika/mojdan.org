@@ -9,19 +9,20 @@ import com.typesafe.config.ConfigFactory
 import spray.can.Http
 
 import tb_backend.http._
+import model._
+import app._
 
 object Server extends App with Kernel {
  
 	override def main(args: Array[String]) = {
 
+		
+		val userActor = system.actorOf(Props[UserActor], "user-actor")
+
 		val apiService = system.actorOf(Props[TBApiServiceActor], "api-service")
 
-		IO(Http) ! Http.Bind(apiService, interface = "localhost", port = 8088)
-	}
-
-	
- 
-	
+		IO(Http) ! Http.Bind(apiService, interface = "0.0.0.0", port = 8088)
+	}	
 }
 
 trait Kernel extends Bootable{
