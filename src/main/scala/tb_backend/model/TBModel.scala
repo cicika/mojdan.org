@@ -2,7 +2,10 @@ package tb_backend.model
 
 case class Login(username: String, password: String)
 case class LoginResponse(uid: Long, token: String)
-case class Register(username: String, password: String, email: String, connector: String)
+case class Register(username: String, password: String, email: String, connector: Option[String])
+
+case class GenerateFullProgrammeTasks(user: String)
+
 
 
 /** Slick data model trait for extension, choice of backend or usage in the cake pattern. (Make sure to initialize this late.) */
@@ -22,22 +25,23 @@ trait Tables {
    *  @param uid Database column uid 
    *  @param day Database column day 
    *  @param activity Database column activity 
+   *  @param startMood Database column start_mood
    *  @param expMood Database column exp_mood 
    *  @param achMood Database column ach_mood 
    *  @param satisfaction Database column satisfaction 
    *  @param achievement Database column achievement 
    *  @param note Database column note  */
-  case class ActivityDiaryRow(aid: Long, uid: Long, day: Int, activity: Option[String], expMood: Option[Int], achMood: Option[Int], satisfaction: Option[Int], achievement: Option[Int], note: Option[String])
+  case class ActivityDiaryRow(aid: Long, uid: Long, day: Int, activity: Option[String], startMood: Option[Int], expMood: Option[Int], achMood: Option[Int], satisfaction: Option[Int], achievement: Option[Int], note: Option[String])
   /** GetResult implicit for fetching ActivityDiaryRow objects using plain SQL queries */
   implicit def GetResultActivityDiaryRow(implicit e0: GR[Long], e1: GR[Int], e2: GR[Option[String]], e3: GR[Option[Int]]): GR[ActivityDiaryRow] = GR{
     prs => import prs._
-    ActivityDiaryRow.tupled((<<[Long], <<[Long], <<[Int], <<?[String], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[String]))
+    ActivityDiaryRow.tupled((<<[Long], <<[Long], <<[Int], <<?[String], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[String]))
   }
   /** Table description of table activity_diary. Objects of this class serve as prototypes for rows in queries. */
   class ActivityDiary(tag: Tag) extends Table[ActivityDiaryRow](tag, "activity_diary") {
-    def * = (aid, uid, day, activity, expMood, achMood, satisfaction, achievement, note) <> (ActivityDiaryRow.tupled, ActivityDiaryRow.unapply)
+    def * = (aid, uid, day, activity, startMood, expMood, achMood, satisfaction, achievement, note) <> (ActivityDiaryRow.tupled, ActivityDiaryRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (aid.?, uid.?, day.?, activity, expMood, achMood, satisfaction, achievement, note).shaped.<>({r=>import r._; _1.map(_=> ActivityDiaryRow.tupled((_1.get, _2.get, _3.get, _4, _5, _6, _7, _8, _9)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (aid.?, uid.?, day.?, activity, startMood, expMood, achMood, satisfaction, achievement, note).shaped.<>({r=>import r._; _1.map(_=> ActivityDiaryRow.tupled((_1.get, _2.get, _3.get, _4, _5, _6, _7, _8, _9, _10)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
     
     /** Database column aid AutoInc, PrimaryKey */
     val aid: Column[Long] = column[Long]("aid", O.AutoInc, O.PrimaryKey)
@@ -47,6 +51,8 @@ trait Tables {
     val day: Column[Int] = column[Int]("day")
     /** Database column activity  */
     val activity: Column[Option[String]] = column[Option[String]]("activity")
+    /** Database column start_mood  */
+    val startMood: Column[Option[Int]] = column[Option[Int]]("start_mood")
     /** Database column exp_mood  */
     val expMood: Column[Option[Int]] = column[Option[Int]]("exp_mood")
     /** Database column ach_mood  */
@@ -125,22 +131,24 @@ trait Tables {
    *  @param negActivities Database column neg_activities 
    *  @param posThoughts Database column pos_thoughts 
    *  @param negThoughts Database column neg_thoughts  */
-  case class MoodScalesRow(mid: Long, uid: Long, posContacts: Option[Int], negContacts: Option[Int], posActivities: Option[Int], negActivities: Option[Int], posThoughts: Option[Int], negThoughts: Option[Int])
+  case class MoodScalesRow(mid: Long, uid: Long, day: Int, posContacts: Option[Int], negContacts: Option[Int], posActivities: Option[Int], negActivities: Option[Int], posThoughts: Option[Int], negThoughts: Option[Int])
   /** GetResult implicit for fetching MoodScalesRow objects using plain SQL queries */
-  implicit def GetResultMoodScalesRow(implicit e0: GR[Long], e1: GR[Option[Int]]): GR[MoodScalesRow] = GR{
+  implicit def GetResultMoodScalesRow(implicit e0: GR[Long], e1: GR[Int], e2: GR[Option[Int]]): GR[MoodScalesRow] = GR{
     prs => import prs._
-    MoodScalesRow.tupled((<<[Long], <<[Long], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[Int]))
+    MoodScalesRow.tupled((<<[Long], <<[Long], <<[Int], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[Int]))
   }
   /** Table description of table mood_scales. Objects of this class serve as prototypes for rows in queries. */
   class MoodScales(tag: Tag) extends Table[MoodScalesRow](tag, "mood_scales") {
-    def * = (mid, uid, posContacts, negContacts, posActivities, negActivities, posThoughts, negThoughts) <> (MoodScalesRow.tupled, MoodScalesRow.unapply)
+    def * = (mid, uid, day, posContacts, negContacts, posActivities, negActivities, posThoughts, negThoughts) <> (MoodScalesRow.tupled, MoodScalesRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (mid.?, uid.?, posContacts, negContacts, posActivities, negActivities, posThoughts, negThoughts).shaped.<>({r=>import r._; _1.map(_=> MoodScalesRow.tupled((_1.get, _2.get, _3, _4, _5, _6, _7, _8)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (mid.?, uid.?, day, posContacts, negContacts, posActivities, negActivities, posThoughts, negThoughts).shaped.<>({r=>import r._; _1.map(_=> MoodScalesRow.tupled((_1.get, _2.get, _3, _4, _5, _6, _7, _8, _9)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
     
     /** Database column mid AutoInc, PrimaryKey */
     val mid: Column[Long] = column[Long]("mid", O.AutoInc, O.PrimaryKey)
     /** Database column uid  */
     val uid: Column[Long] = column[Long]("uid")
+    /** Database column day */
+    val day: Column[Int] = column[Int]("day")
     /** Database column pos_contacts  */
     val posContacts: Column[Option[Int]] = column[Option[Int]]("pos_contacts")
     /** Database column neg_contacts  */
@@ -264,4 +272,33 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table User */
   lazy val User = new TableQuery(tag => new User(tag))
+
+   /** Entity class storing rows of table Completed
+   *  @param uid Database column uid 
+   *  @param completed Database column completed 
+   *  @param active Database column c_type  */
+  case class CompletedRow(uid: Long, completed: Option[String], active: Option[Int])
+  /** GetResult implicit for fetching CompletedRow objects using plain SQL queries */
+  implicit def GetResultCompletedRow(implicit e0: GR[Long], e1: GR[Option[String]], e2: GR[Option[Int]]): GR[CompletedRow] = GR{
+    prs => import prs._
+    CompletedRow.tupled((<<[Long], <<?[String], <<?[Int]))
+  }
+  /** Table description of table connectors. Objects of this class serve as prototypes for rows in queries. */
+  class Completed(tag: Tag) extends Table[CompletedRow](tag, "completed") {
+    def * = (uid, completed, active) <> (CompletedRow.tupled, CompletedRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (uid.?, completed, active).shaped.<>({r=>import r._; _1.map(_=> CompletedRow.tupled((_1.get, _2, _3)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    
+    /** Database column uid  */
+    val uid: Column[Long] = column[Long]("uid")
+    /** Database column completed  */
+    val completed: Column[Option[String]] = column[Option[String]]("completed")
+    /** Database column c_type  */
+    val active: Column[Option[Int]] = column[Option[Int]]("active")
+    
+    /** Uniqueness Index over (uid) (database name CONSTRAINT_INDEX_D) */
+    val index1 = index("CONSTRAINT_INDEX_D", uid, unique=true)
+  }
+  /** Collection-like TableQuery object for table Completed */
+  lazy val Completed = new TableQuery(tag => new Completed(tag))
 }

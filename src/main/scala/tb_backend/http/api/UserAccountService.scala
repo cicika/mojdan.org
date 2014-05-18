@@ -46,7 +46,7 @@ trait UserAccountService extends HttpService with Config
 					case Success(login) =>
 						log.debug("Json works...")
 						val q = for {
-								u <- User if (u.password === login.password && u.username === login.username)
+								u <- User if (u.password === login.password && u.email === login.username)
 								t <- Auth if (u.uid === t.uid)
 							} yield (u.uid, t.token)
 
@@ -79,7 +79,7 @@ trait UserAccountService extends HttpService with Config
 					val userId = db.withSession{ implicit session =>
 						val userId = (User returning User.map(_.uid)) += 
 							UserRow(-1, regData.email, regData.username, regData.password)
-							Connectors += ConnectorsRow(userId, Some(regData.connector), None)
+							//Connectors += ConnectorsRow(userId, Some(regData.connector), None)
 							Auth += AuthRow(userId, Some(accessToken))
 						userId
 					}

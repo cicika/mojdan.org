@@ -9,7 +9,7 @@ trait TokenGenerator {
   
   val TOKEN_LENGTH = 32
   val TOKEN_CHARS = 
-     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._"
+     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   val secureRandom = new SecureRandom()
     
   def generateToken:String =  

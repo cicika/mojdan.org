@@ -17,11 +17,14 @@ object Server extends App with Kernel {
 	override def main(args: Array[String]) = {
 
 		
-		val userActor = system.actorOf(Props[UserActor], "user-actor")
+		//val userActor = system.actorOf(Props[UserActor], "user-actor")
+		//val taskScheduler = system.actorOf(Props[TaskScheduling], "task-scheduler")
 
 		val apiService = system.actorOf(Props[TBApiServiceActor], "api-service")
+		val loginService = system.actorOf(Props[LoginServiceActor], "login-service")
 
 		IO(Http) ! Http.Bind(apiService, interface = "0.0.0.0", port = 8088)
+		IO(Http) ! Http.Bind(loginService, interface = "0.0.0.0", port = 8087)
 	}	
 }
 

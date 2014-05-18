@@ -29,9 +29,11 @@ libraryDependencies ++= {
         "io.spray" % "spray-util" % "1.1.0" % "compile",
         "io.spray" % "spray-client" % "1.1.0" % "compile",
         "io.spray" %  "spray-json_2.10" % "1.2.5" % "compile",
-         "com.typesafe.slick" %% "slick" % "2.0.2",
+         "com.typesafe.slick" %% "slick" % "2.0.2" % "compile",
          "ch.qos.logback" % "logback-classic" % "1.0.13" % "compile",
-         "postgresql" % "postgresql" % "9.1-901.jdbc4"
+         "postgresql" % "postgresql" % "9.1-901.jdbc4" % "compile",
+         "org.joda" % "joda-convert" % "1.2" % "compile",
+         "joda-time" % "joda-time" % "2.2" % "compile"        
 	)
 }
 

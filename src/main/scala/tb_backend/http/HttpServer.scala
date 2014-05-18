@@ -15,38 +15,85 @@ import tb_backend.http.api._
 import tb_backend.http.www._
 import tb_backend.http.auth._
 
-trait TBApiService extends HttpService with UserAccountService
-																			 with UserAuthentication{
-
-	def loginReg(ctx: ActorContext) = {
+trait LoginService extends HttpService with UserAccountService{
+	def route(ctxx: ActorContext) = {
 		method(HttpMethods.POST) {
 			pathPrefix("user"){
 				pathPrefix("login"){
-					login(ctx)
+					login(ctxx)
 				} ~ 
 				pathPrefix("register"){
-					register(ctx)
+					register(ctxx)
 				}
-			}
+			} //~ complete(StatusCodes.NotFound) 
 		}
 	} 
-	def tbApi = {
-		authenticate(tbAuthenticator) { user => 
+}
+trait TBApiService extends HttpService with UserAccountService
+																			 with ProgrammeService
+																			 with ActivityDiaryService
+																			 with MoodScaleService
+																			 with UserAuthentication{
+
+	def tbApi(user: String) = {
+		//authenticate(tbAuthenticator) { user => 
 			method(HttpMethods.GET){
-				pathPrefix("user"){
-					pathPrefix("data"){
+				pathPrefix("me"){
 						userData(user)
+				} ~
+				pathPrefix("scales"){
+					scales(user)
+				} ~
+				pathPrefix("activity"){
+					pathPrefix("all"){
+						activityHistory(user)
 					}
+				} ~
+				pathPrefix("programme"){
+					path("start"){
+						startProgramme(user)
+					} ~
+					path("completed"){
+						completedDays(user)
+					} ~
+					path("all"){
+						programme(user)
+					} ~
+					path("active"){
+						dailyProgramme(user)
+					}
+				} 
+		//}
+	}	~ 
+		method(HttpMethods.POST){
+			pathPrefix("activity"){
+				path("complete"){
+					postActivity(user)
+				} ~
+				path("start"){
+					postStartMood(user)	
 				}
-			}			
-		}
-	}	~ complete(StatusCodes.NotFound)		
+			} ~
+			pathPrefix("scales"){
+				postExperiences(user)
+			}/* ~
+					path(Segment){d =>
+						complete(StatusCodes.OK)
+					}*/
+				//}			
+		}~
+			complete(StatusCodes.NotFound)		
+	}
 }
 	
-
-
 class TBApiServiceActor extends Actor with TBApiService {
 	def actorRefFactory = context
 
-	def receive = runRoute(loginReg(context) ~ tbApi)
+	def receive = runRoute(authenticate(tbAuthenticator) {user => tbApi(user)})
 }
+
+class LoginServiceActor extends Actor with LoginService {
+	def actorRefFactory = context
+	def receive = runRoute(route(context))
+}
+

@@ -33,11 +33,11 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
       "username" -> JsString(r.username),
       "password" -> JsString(r.password),
       "email" -> JsString(r.email),
-      "connector" -> JsString(r.connector)
+      "connector" -> JsString(r.connector.getOrElse(""))
       )
     def read(value: JsValue) = value.asJsObject.fields match {
       case r: Map[String, JsValue] => Register(r("username").convertTo[String], r("password").convertTo[String],
-                                               r("email").convertTo[String], r("connector").convertTo[String])
+                                               r("email").convertTo[String], r.get("connector").map(e => e.convertTo[String]))
       case _ => throw new DeserializationException("Register expected...")
     }
   }
@@ -46,7 +46,6 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
     def write(u: UserRow) = JsObject(
       "uid" -> JsNumber(u.uid),
       "username" -> JsString(u.username),
-      "password" -> JsString(""),
       "email" -> JsString(u.email),
       "firstname" -> JsString(u.firstname.getOrElse("")),
       "lastname" -> JsString(u.lastname.getOrElse(""))
@@ -55,10 +54,90 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
     def read(value: JsValue) = value.asJsObject.fields match {
       case u: Map[String, JsValue] =>
         UserRow(u("uid").convertTo[Int], u("email").convertTo[String], u("username").convertTo[String], "", 
-          Some(u("firstname").convertTo[String]), Some(u("lastname").convertTo[String]))
+          u.get("firstname").map(e => e.convertTo[String]), u.get("lastname").map(e => e.convertTo[String]))
       case _ => throw new DeserializationException("UserRow expected")
     }
   }
- 
 
+  implicit object ProgrammeRowJsonProtocol extends RootJsonFormat[ProgrammeRow] {
+    def write(p: ProgrammeRow) = JsObject(
+      "day" -> JsNumber(p.day),
+      "image" -> JsString(p.image.getOrElse("")),
+      "sentence" -> JsString(p.sentence.getOrElse("")),
+      "activity_s" -> JsString(p.activityS.getOrElse("")),
+      "activity_l" -> JsString(p.activityL.getOrElse("")),
+      "activity_s_b" -> JsString(p.activitySB.getOrElse("")),
+      "activity_l_b" -> JsString(p.activityLB.getOrElse(""))
+    )
+
+    def read(value: JsValue) = value.asJsObject.fields match {
+      case p: Map[String, JsValue] =>
+        ProgrammeRow(p("day").convertTo[Int], p.get("image").map(e => e.convertTo[String]), 
+                     p.get("sentence").map(e => e.convertTo[String]), p.get("activity_s").map(e => e.convertTo[String]),
+                     p.get("activity_l").map(e => e.convertTo[String]),
+                     p.get("activity_s_b").map(e => e.convertTo[String]),
+                     p.get("activity_l_b").map(e => e.convertTo[String]))
+      case _ => throw new DeserializationException("ProgrammeRow expected...")
+    }
+  }
+
+  implicit object CompletedRowJsonProtocol extends RootJsonFormat[CompletedRow]{
+    def write(c: CompletedRow) = JsObject(
+      "completed" -> JsString(c.completed.getOrElse("")),
+      "active" -> JsNumber(c.active.getOrElse(0))
+    )
+
+    def read(value: JsValue) = value.asJsObject.fields match {
+      case c: Map[String, JsValue] =>
+        CompletedRow(c("uid").convertTo[Long], c.get("completed").map(e => e.convertTo[String]),
+                     c.get("active").map(e => e.convertTo[Int]))
+      case _ => throw new DeserializationException("Completed expected")
+    }
+  }
+ 
+  implicit object ActivityDiaryRowJsonProtocol extends RootJsonFormat[ActivityDiaryRow]{
+    def write(a: ActivityDiaryRow) = JsObject(
+      "aid" -> JsNumber(a.aid),
+      "uid" -> JsNumber(a.uid),
+      "day" -> JsNumber(a.day),
+      "activity" -> JsString(a.activity.getOrElse("")),
+      "start_mood" -> JsNumber(a.startMood.getOrElse(-1)),
+      "exp_mood" -> JsNumber(a.expMood.getOrElse(-1)),
+      "ach_mood" -> JsNumber(a.achMood.getOrElse(-1)),
+      "satisfaction" -> JsNumber(a.satisfaction.getOrElse(-1)),
+      "achievement" -> JsNumber(a.achievement.getOrElse(-1)),
+      "note" -> JsString(a.note.getOrElse(""))
+    )
+
+    def read(value: JsValue) = value.asJsObject.fields match {
+      case t: Map[String, JsValue] =>
+        ActivityDiaryRow(t("aid").convertTo[Long], t("uid").convertTo[Long], t("day").convertTo[Int],
+          t.get("activity").map(e => e.convertTo[String]), t.get("start_mood").map(e => e.convertTo[Int]), 
+          t.get("exp_mood").map(e => e.convertTo[Int]), t.get("ach_mood").map(e => e.convertTo[Int]), 
+          t.get("satisfaction").map(e => e.convertTo[Int]), t.get("achievement").map(e => e.convertTo[Int]),
+          t.get("note").map(e => e.convertTo[String]))
+      case _ => throw new DeserializationException("ActivityDiaryRow expected")
+    }
+  }
+  implicit object MoodScalesRowJsonProtocol extends RootJsonFormat[MoodScalesRow] {
+    def write(m: MoodScalesRow) = JsObject(
+        "mid" -> JsNumber(m.mid),
+        "uid" -> JsNumber(m.uid),
+        "day" -> JsNumber(m.day),
+        "pos_contacts" -> JsNumber(m.posContacts.getOrElse(0)),
+        "neg_contacts" -> JsNumber(m.negContacts.getOrElse(0)),
+        "pos_activities" -> JsNumber(m.posActivities.getOrElse(0)),
+        "neg_activities" -> JsNumber(m.negActivities.getOrElse(0)),
+        "pos_thoughts" -> JsNumber(m.posThoughts.getOrElse(0)),
+        "neg_thoughts" -> JsNumber(m.negThoughts.getOrElse(0))
+      )
+
+    def read(value: JsValue) = value.asJsObject.fields match {
+      case m: Map[String, JsValue] => 
+        MoodScalesRow(m("mid").convertTo[Long], m("uid").convertTo[Long], m("day").convertTo[Int], m.get("pos_contacts").map(e => e.convertTo[Int]), m.get("neg_contacts").map(e => e.convertTo[Int]),
+                      m.get("pos_activities").map(e => e.convertTo[Int]), m.get("neg_activities").map(e => e.convertTo[Int]),
+                      m.get("pos_thoughts").map(e => e.convertTo[Int]), m.get("neg_thoughts").map(e => e.convertTo[Int]))
+      case _ => throw new DeserializationException("MoodScales expected") 
+    }
+  }
 }
