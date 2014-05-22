@@ -37,9 +37,9 @@ trait ProgrammeService extends HttpService with Config
 
 	import tb_backend.model.Tables
 
-	//POST /programme/start
+	//GET /programme/start
 
-	def startProgramme = (user: String) => get{
+	def startProgramme = (user: String) => {
 		val q = for {
 			p <- Programme if (p.day === 1)
 		} yield (p.image, p.sentence, p.activityS, p.activityL, p.activitySB, p.activityLB)
@@ -64,7 +64,11 @@ trait ProgrammeService extends HttpService with Config
 		}
 	}
 
-	def programme = (user: String) => get{
+	def restartProgramme = (user: String) => {
+		complete(StatusCodes.NotImplemented)
+	}
+
+	def programme = (user: String) => {
 		val q = for {
 			p <- Programme
 		} yield (p.day, p.image, p.sentence, p.activityS, p.activityL, p.activitySB, p.activityLB)
@@ -80,15 +84,21 @@ trait ProgrammeService extends HttpService with Config
 		val compl = db.withSession{session =>
 			q1.list()(session)
 		}.headOption.map(e => CompletedRow(user.toLong, e._1, e._2))
-
+		System.out.println(compl.map(c => c.completed).
+																	  	flatten)
 		val response = new JsObject(Map("programme" -> progList.toJson,
-																	  "completed" -> compl.map(c => c.completed).flatten.map(e => e.split(",").map(a => a.toInt)).getOrElse(Array()).toJson,
+																	  "completed" -> compl.map(c => c.completed).
+																	  	flatten.
+																	  	map(e => e.split(",").
+																	  	map(a => a.toInt)).
+																	  	getOrElse(Array()).
+																	  	toJson,
 																	  "active" -> compl.map(c => c.active.getOrElse(1)).getOrElse(1).toJson))
 		respondWithStatus(StatusCodes.OK)
 		complete(response.toString)
 	}
 
-	def dailyProgramme = (user: String) => get {ctx =>
+	def dailyProgramme = (user: String) => {
 		val q = for {			
 			c <- Completed if (c.uid === user.toLong)
 			p <- Programme if (p.day === c.active)
@@ -106,7 +116,7 @@ trait ProgrammeService extends HttpService with Config
 		}
 	}
 
-	def completedDays = (user: String) => get {ctx =>
+	def completedDays = (user: String) => {
 
 		val q1 = for {
 			s <- ScheduledTasks if (s.uid === user.toLong && s.tType === 0)

@@ -38,30 +38,21 @@ trait TBApiService extends HttpService with UserAccountService
 	def tbApi(user: String) = {
 		//authenticate(tbAuthenticator) { user => 
 			method(HttpMethods.GET){
+				path("programme" / Segment){ s =>
+					val res = s match {
+						case "start" => startProgramme(user)
+						case "restart" => restartProgramme(user)
+						case "completed" => completedDays(user)
+						case "all" => programme(user)
+						case "active" => dailyProgramme(user)
+					}
+						res
+				} ~
 				pathPrefix("me"){
 						userData(user)
 				} ~
 				pathPrefix("scales"){
 					scales(user)
-				} ~
-				pathPrefix("activity"){
-					pathPrefix("all"){
-						activityHistory(user)
-					}
-				} ~
-				pathPrefix("programme"){
-					path("start"){
-						startProgramme(user)
-					} ~
-					path("completed"){
-						completedDays(user)
-					} ~
-					path("all"){
-						programme(user)
-					} ~
-					path("active"){
-						dailyProgramme(user)
-					}
 				} 
 		//}
 	}	~ 

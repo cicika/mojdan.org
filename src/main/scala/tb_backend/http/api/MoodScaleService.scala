@@ -33,20 +33,23 @@ trait MoodScaleService extends HttpService with Config{
 
 	import tb_backend.model.Tables
 
-	def postExperiences = (user: String) => post{ctx =>
+	def postExperiences = (user: String) => {
 		entity(as[String]){s =>
+			System.out.println(s)
 			Try(s.asJson.asJsObject.convertTo[MoodScalesRow]) match {
 				case Success(ms) => 
 					db.withSession{ implicit session =>
 						MoodScales += ms
 					}
 					complete(StatusCodes.OK)
-				case Failure(ex) => complete(StatusCodes.BadRequest)
+				case Failure(ex) => 
+					System.out.println(ex)
+					complete(StatusCodes.BadRequest)
 			}
 		}
 	}
 
-	def scales = (user: String) => post{ctx =>
+	def scales = (user: String) => {
 		val q = for {
 			c <- Completed if(c.uid === user.toLong)
 		} yield c.active
@@ -59,14 +62,33 @@ trait MoodScaleService extends HttpService with Config{
 			case Some(x) if x < 8 => 0
 			case Some(x) if (x >= 8 && x < 15) => 7
 			case Some(x) if (x >= 15 && x < 22) => 14
-			case Some(x) if (x >= 22 && x < 29) => 21
-			case Some(x) if x >= 29 => 28
+			case Some(x) if (x >= 22 && x < 28) => 21
+			case Some(x) if x >= 28 => 28
 			case None => 0
 		}
 
-		val q1 = for {
-			ad <- ActivityDiary if(ad.day <= records && ad.uid === user.toLong)
-		} yield (ad.aid, ad.uid, ad.day, ad.activity, ad.startMood, ad.expMood, ad.achMood, ad.satisfaction, ad.achievement, ad.note)
+		val result = records match {
+			case x if x <= 0 => complete(StatusCodes.NoContent)
+			case _ =>
+				val q1 = for {
+					ad <- ActivityDiary if(ad.day <= records && ad.uid === user.toLong)
+					ms <- MoodScales if(ms.day <= records && ms.uid === user.toLong)
+				} yield (ad.aid, ad.uid, ad.day, ad.activity, ad.startMood, ad.expMood, ad.achMood, ad.satisfaction, ad.achievement, ad.note,
+						 ms.mid, ms.uid, ms.day, ms.posContacts, ms.negContacts, ms.posActivities, ms.negActivities, ms.posThoughts, ms.negThoughts)
+
+				val res = db.withSession{session =>
+					q1.list()(session)
+				}.map(e => 
+					(ActivityDiaryRow(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10), 
+					 MoodScalesRow(e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19))).sortBy(e => e._1.day)
+
+				respondWithStatus(StatusCodes.OK)
+				complete(res.toJson.toString)
+		}
+		result
+
+		
+
 
 	}
 }

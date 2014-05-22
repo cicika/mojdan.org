@@ -111,7 +111,7 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
 
     def read(value: JsValue) = value.asJsObject.fields match {
       case t: Map[String, JsValue] =>
-        ActivityDiaryRow(t("aid").convertTo[Long], t("uid").convertTo[Long], t("day").convertTo[Int],
+        ActivityDiaryRow(t.get("aid").map(e => e.convertTo[Long]).getOrElse(-1l), t.get("uid").map(e => e.convertTo[Long]).getOrElse(-1l), t("day").convertTo[Int],
           t.get("activity").map(e => e.convertTo[String]), t.get("start_mood").map(e => e.convertTo[Int]), 
           t.get("exp_mood").map(e => e.convertTo[Int]), t.get("ach_mood").map(e => e.convertTo[Int]), 
           t.get("satisfaction").map(e => e.convertTo[Int]), t.get("achievement").map(e => e.convertTo[Int]),
@@ -134,7 +134,7 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
 
     def read(value: JsValue) = value.asJsObject.fields match {
       case m: Map[String, JsValue] => 
-        MoodScalesRow(m("mid").convertTo[Long], m("uid").convertTo[Long], m("day").convertTo[Int], m.get("pos_contacts").map(e => e.convertTo[Int]), m.get("neg_contacts").map(e => e.convertTo[Int]),
+        MoodScalesRow(m.get("mid").map(e => e.convertTo[Long]).getOrElse(-1l), m.get("uid").map(e => e.convertTo[Long]).getOrElse(-1l), m("day").convertTo[Int], m.get("pos_contacts").map(e => e.convertTo[Int]), m.get("neg_contacts").map(e => e.convertTo[Int]),
                       m.get("pos_activities").map(e => e.convertTo[Int]), m.get("neg_activities").map(e => e.convertTo[Int]),
                       m.get("pos_thoughts").map(e => e.convertTo[Int]), m.get("neg_thoughts").map(e => e.convertTo[Int]))
       case _ => throw new DeserializationException("MoodScales expected") 

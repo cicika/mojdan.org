@@ -37,7 +37,7 @@ trait ActivityDiaryService extends HttpService with Config{
 	import tb_backend.model.Tables
 
 	
-	def postStartMood = (user: String) => post{ctx =>
+	def postStartMood = (user: String) => {
 		entity(as[String]){s =>
 			s.asJson.asJsObject.fields.get("start_mood") match {
 				case Some(x) =>
@@ -50,9 +50,9 @@ trait ActivityDiaryService extends HttpService with Config{
 					}.head.getOrElse(1)
 
 					db.withSession{implicit session =>
-						q.update(Some(day+1))
-						val statement = q.updateStatement
-						val invoker = q.updateInvoker
+					//	q.update(Some(day+1))
+					//	val statement = q.updateStatement
+					//	val invoker = q.updateInvoker
 
 					ActivityDiary += ActivityDiaryRow(-1, user.toLong, day, None, Some(x.convertTo[Int]), None, None, None, None, None)					
 					}
@@ -63,10 +63,11 @@ trait ActivityDiaryService extends HttpService with Config{
 			}  
 		}
 	}
-	def postActivity = (user: String) => post{ctx =>
+	def postActivity = (user: String) => {
 		//log.info("RUnnin method...")
 		entity(as[String]){s =>
 			//log.info("Extracted entity...")
+
 			Try(s.asJson.asJsObject.convertTo[ActivityDiaryRow]) match {
 				case Success(ad) =>
 						//log.info("And successfully....")
@@ -95,29 +96,44 @@ trait ActivityDiaryService extends HttpService with Config{
 						q2.list()(session)
 					}.headOption
 
+					val aid = oldData.map(e => e._1)
 					//log.info("Got old data tooo {}", oldData)
 
 					val q3 = for{
 						c <- Completed if(c.uid === user.toLong)
 					} yield c.completed
 
+					val q4 = for{
+						c1 <- Completed if(c1.uid === user.toLong)
+					} yield c1.active
+
 					val completedOld = db.withSession{session =>
 						q3.list()(session)
-					}.headOption
+					}.head
+
+					val activeOld = db.withSession{session =>
+						q4.list()(session)
+					}.head
 
 					val completedNew = (completedOld, activity) match {
 						case (Some(x), Some(y)) => Some(x+","+day.toString)
-						case (Some(x), None) => Some(x)
+						case (Some(x), None) if (x != None && x.toString != "None") => Some(x)
 						case (None, Some(y)) => Some(1)
 						case (None, None) => None
 					}
 					//log.info("Attempting to update....")
 					db.withSession{implicit session =>
 						ActivityDiary += ActivityDiaryRow(-1, user.toLong, day, activity, oldData.map(e => e._2.getOrElse(1)), exp_mood, ach_mood, satisfaction, achievement, note)
-						q3.update(Some(completedNew.toString))
+						q3.update(completedNew.map(e => e.toString))
+						q4.update(activeOld.map(e => e + 1))
+						q4.updateStatement
+						q4.updateInvoker
+						sqlu"delete from activity_diary where aid = $aid".first
 						//q2.delete
 						val statement = q3.updateStatement
 						val invoker = q3.updateInvoker
+						//q2.deleteStatement
+						//q2.deleteInvoker
 					}						
 					complete(StatusCodes.OK)
 				case Failure(ex) => complete(StatusCodes.BadRequest)
@@ -125,7 +141,7 @@ trait ActivityDiaryService extends HttpService with Config{
 		}
 	}
 
-	 def activityHistory = (user: String) => get{ctx =>
+	 def activityHistory = (user: String) => {
 	 		val q = for{
 	 			ad <- ActivityDiary if (ad.uid === user.toLong)
 	 		} yield (ad.aid, ad.uid, ad.day, ad.activity, ad.startMood, ad.expMood, ad.achMood, 
