@@ -39,7 +39,7 @@ trait MoodScaleService extends HttpService with Config{
 			Try(s.asJson.asJsObject.convertTo[MoodScalesRow]) match {
 				case Success(ms) => 
 					db.withSession{ implicit session =>
-						MoodScales += ms
+						MoodScales += ms.copy(uid = user.toLong)
 					}
 					complete(StatusCodes.OK)
 				case Failure(ex) => 
@@ -86,9 +86,5 @@ trait MoodScaleService extends HttpService with Config{
 				complete(res.toJson.toString)
 		}
 		result
-
-		
-
-
 	}
 }

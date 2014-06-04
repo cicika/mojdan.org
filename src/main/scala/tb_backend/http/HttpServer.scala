@@ -24,6 +24,9 @@ trait LoginService extends HttpService with UserAccountService{
 				} ~ 
 				pathPrefix("register"){
 					register(ctxx)
+				} ~
+				pathPrefix("forgotpass"){
+					forgotPassword(ctxx)
 				}
 			} //~ complete(StatusCodes.NotFound) 
 		}

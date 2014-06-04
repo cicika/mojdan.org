@@ -115,4 +115,8 @@ trait UserAccountService extends HttpService with Config
 		}
 	}
 
+	def forgotPassword = (context: ActorContext) => {
+		complete(StatusCodes.NotImplemented)
+	}
+
 }
