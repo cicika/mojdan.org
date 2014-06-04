@@ -56,7 +56,7 @@ trait MoodScaleService extends HttpService with Config{
 
 		val days = db.withSession{session =>
 			q.list()(session)
-		}.head
+		}.headOption
 
 		val records = days match {
 			case Some(x) if x < 8 => 0

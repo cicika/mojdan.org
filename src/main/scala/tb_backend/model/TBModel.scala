@@ -276,29 +276,33 @@ trait Tables {
    /** Entity class storing rows of table Completed
    *  @param uid Database column uid 
    *  @param completed Database column completed 
-   *  @param active Database column c_type  */
-  case class CompletedRow(uid: Long, completed: Option[String], active: Option[Int])
+   *  @param active Database column active 
+   *  @param dateStarted Database column date_started  */
+  case class CompletedRow(uid: Long, completed: Option[String], active: Int, dateStarted: Option[java.sql.Timestamp])
   /** GetResult implicit for fetching CompletedRow objects using plain SQL queries */
-  implicit def GetResultCompletedRow(implicit e0: GR[Long], e1: GR[Option[String]], e2: GR[Option[Int]]): GR[CompletedRow] = GR{
+  implicit def GetResultCompletedRow(implicit e0: GR[Long], e1: GR[Option[String]], e2: GR[Int], e3: GR[Option[java.sql.Timestamp]]): GR[CompletedRow] = GR{
     prs => import prs._
-    CompletedRow.tupled((<<[Long], <<?[String], <<?[Int]))
+    CompletedRow.tupled((<<[Long], <<?[String], <<[Int], <<?[java.sql.Timestamp]))
   }
-  /** Table description of table connectors. Objects of this class serve as prototypes for rows in queries. */
+  /** Table description of table completed. Objects of this class serve as prototypes for rows in queries. */
   class Completed(tag: Tag) extends Table[CompletedRow](tag, "completed") {
-    def * = (uid, completed, active) <> (CompletedRow.tupled, CompletedRow.unapply)
+    def * = (uid, completed, active, dateStarted) <> (CompletedRow.tupled, CompletedRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (uid.?, completed, active).shaped.<>({r=>import r._; _1.map(_=> CompletedRow.tupled((_1.get, _2, _3)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (uid.?, completed, active.?, dateStarted).shaped.<>({r=>import r._; _1.map(_=> CompletedRow.tupled((_1.get, _2, _3.get, _4)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
     
     /** Database column uid  */
     val uid: Column[Long] = column[Long]("uid")
     /** Database column completed  */
     val completed: Column[Option[String]] = column[Option[String]]("completed")
-    /** Database column c_type  */
-    val active: Column[Option[Int]] = column[Option[Int]]("active")
+    /** Database column active  */
+    val active: Column[Int] = column[Int]("active")
+    /** Database column date_started  */
+    val dateStarted: Column[Option[java.sql.Timestamp]] = column[Option[java.sql.Timestamp]]("date_started")
     
-    /** Uniqueness Index over (uid) (database name CONSTRAINT_INDEX_D) */
-    val index1 = index("CONSTRAINT_INDEX_D", uid, unique=true)
+    /** Uniqueness Index over (uid) (database name CONSTRAINT_INDEX_A) */
+    val index1 = index("CONSTRAINT_INDEX_A", uid, unique=true)
   }
   /** Collection-like TableQuery object for table Completed */
   lazy val Completed = new TableQuery(tag => new Completed(tag))
+
 }

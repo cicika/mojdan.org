@@ -47,7 +47,7 @@ trait ActivityDiaryService extends HttpService with Config{
 
 					val day = db.withSession{ session =>
 						q.list()(session)
-					}.head.getOrElse(1)
+					}.headOption.getOrElse(1)
 
 					db.withSession{implicit session =>
 					//	q.update(Some(day+1))
@@ -84,7 +84,7 @@ trait ActivityDiaryService extends HttpService with Config{
 
 					val day = db.withSession{ session =>
 						q.list()(session)
-					}.head.getOrElse(1)
+					}.headOption.getOrElse(1)
 
 					//log.info("Got number of days... {}", day)
 
@@ -113,7 +113,7 @@ trait ActivityDiaryService extends HttpService with Config{
 
 					val activeOld = db.withSession{session =>
 						q4.list()(session)
-					}.head
+					}.headOption
 
 					val completedNew = (completedOld, activity) match {
 						case (Some(x), Some(y)) => Some(x+","+day.toString)
@@ -125,7 +125,7 @@ trait ActivityDiaryService extends HttpService with Config{
 					db.withSession{implicit session =>
 						ActivityDiary += ActivityDiaryRow(-1, user.toLong, day, activity, oldData.map(e => e._2.getOrElse(1)), exp_mood, ach_mood, satisfaction, achievement, note)
 						q3.update(completedNew.map(e => e.toString))
-						q4.update(activeOld.map(e => e + 1))
+						q4.update(activeOld.map(e => e + 1).getOrElse(1))
 						q4.updateStatement
 						q4.updateInvoker
 						sqlu"delete from activity_diary where aid = $aid".first

@@ -84,13 +84,13 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
   implicit object CompletedRowJsonProtocol extends RootJsonFormat[CompletedRow]{
     def write(c: CompletedRow) = JsObject(
       "completed" -> JsString(c.completed.getOrElse("")),
-      "active" -> JsNumber(c.active.getOrElse(0))
+      "active" -> JsNumber(c.active)
     )
 
     def read(value: JsValue) = value.asJsObject.fields match {
       case c: Map[String, JsValue] =>
         CompletedRow(c("uid").convertTo[Long], c.get("completed").map(e => e.convertTo[String]),
-                     c.get("active").map(e => e.convertTo[Int]))
+                     c("active").convertTo[Int], None)
       case _ => throw new DeserializationException("Completed expected")
     }
   }

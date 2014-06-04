@@ -4,6 +4,8 @@ import akka.actor._
 import akka.pattern._
 import akka.util.Timeout
 
+import java.sql.Timestamp
+
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -57,7 +59,7 @@ trait ProgrammeService extends HttpService with Config
 											 	ProgrammeRow(1, p._1, p._2, None, None, p._5, p._6)
 											 }
 				db.withSession{ implicit session =>
-					Completed += CompletedRow(user.toLong, None, Some(1))
+					Completed += CompletedRow(user.toLong, None, 1, Some(new Timestamp(now)))
 				}
 				complete(response.toJson.toString)
 			case None => complete(StatusCodes.NotFound)
@@ -79,13 +81,35 @@ trait ProgrammeService extends HttpService with Config
 
 		val q1 = for {
 			c <- Completed if (c.uid === user.toLong)
-		} yield (c.completed, c.active)
+		} yield (c.completed, c.active, c.dateStarted)
 
 		val compl = db.withSession{session =>
 			q1.list()(session)
-		}.headOption.map(e => CompletedRow(user.toLong, e._1, e._2))
+		}.headOption.map(e => CompletedRow(user.toLong, e._1, e._2, e._3))
+
 		System.out.println(compl.map(c => c.completed).
 																	  	flatten)
+
+		val active = compl.map(c => c.active).getOrElse(1)
+		val dateStarted = compl.map(c => c.dateStarted).flatten
+		val activeDayCheck = activeDay(dateStarted, active)
+
+		val finalActiveDay = 
+			if(activeDayCheck > active){
+				Future{
+					val q2 = for {
+						c <- Completed if(c.uid === user.toLong)
+					} yield c.active
+					db.withSession{implicit session =>
+						q2.update(activeDayCheck)
+						q2.updateStatement
+						q2.updateInvoker
+					}
+				}
+				activeDayCheck
+			}
+			else active
+
 		val response = new JsObject(Map("programme" -> progList.toJson,
 																	  "completed" -> compl.map(c => c.completed).
 																	  	flatten.
@@ -93,7 +117,7 @@ trait ProgrammeService extends HttpService with Config
 																	  	map(a => a.toInt)).
 																	  	getOrElse(Array()).
 																	  	toJson,
-																	  "active" -> compl.map(c => c.active.getOrElse(1)).getOrElse(1).toJson))
+																	  "active" -> finalActiveDay.toJson))
 		respondWithStatus(StatusCodes.OK)
 		complete(response.toString)
 	}
@@ -140,6 +164,20 @@ trait ProgrammeService extends HttpService with Config
 		}
 		else complete(StatusCodes.InternalServerError)
 	} 
+
+	private def activeDay(dateStarted: Option[Timestamp], active: Int) = dateStarted match {
+		case Some(ts) =>
+			val result = weekdayWithDelta(ts, active) match {
+				case x if x == 7 => 
+					if(weekdayNow == 0) active + 1
+					else active
+				case x if x < 7 => 
+					if (weekdayNow > x) active + 1
+					else active
+			} 
+			result			
+		case None => 1
+	}
 }  
 
 

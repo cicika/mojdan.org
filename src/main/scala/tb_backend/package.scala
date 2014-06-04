@@ -7,8 +7,9 @@ import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import Q.interpolation
 
+import java.sql.Timestamp
 import java.util.Date
-
+import java.util.Calendar
 
 trait Config {
 	val config = ConfigFactory.load()
@@ -30,5 +31,23 @@ trait TimeUtils {
 	def currentHour = {
 		val currTime = new Date()
 		currTime.getHours()
+	}
+
+	def weekdayNow = {
+		val currTime = Calendar.getInstance()
+		currTime.get(Calendar.DAY_OF_WEEK)
+	}
+
+	def weekday(timestamp: Timestamp) = {
+		val calendar = Calendar.getInstance()
+		calendar.set(Calendar.MILLISECOND, timestamp.getTime().toInt)
+		calendar.get(Calendar.DAY_OF_WEEK)
+	}
+
+	def weekdayWithDelta(timestamp: Timestamp, delta: Int) = {
+		val calendar = Calendar.getInstance()
+		calendar.set(Calendar.MILLISECOND, timestamp.getTime().toInt)
+		calendar.roll(Calendar.DAY_OF_WEEK, delta)
+		calendar.get(Calendar.DAY_OF_WEEK)
 	}
 }
