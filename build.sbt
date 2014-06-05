@@ -4,9 +4,9 @@ import Keys._
 import com.twitter.sbt._
 import com.twitter.sbt.PackageDist._
 
-organization := "rs.tibiras"
+organization := "org.mojdan"
 
-name := "tb_backend"
+name := "md-backend"
 
 version := "1.0-SNAPSHOT"
 
