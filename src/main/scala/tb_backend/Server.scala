@@ -1,4 +1,4 @@
-package tb_backend
+package org.mojdan.md_backend
 
 import akka.actor._
 import akka.io.IO
@@ -8,7 +8,7 @@ import com.typesafe.config.ConfigFactory
 
 import spray.can.Http
 
-import tb_backend.http._
+import org.mojdan.md_backend.http._
 import model._
 import app._
 

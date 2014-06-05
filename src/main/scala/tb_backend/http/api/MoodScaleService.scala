@@ -1,4 +1,4 @@
-package tb_backend.http.api
+package org.mojdan.md_backend.http.api
 
 import akka.actor._
 import akka.pattern._
@@ -24,14 +24,14 @@ import spray.routing._
 
 import spray.routing.{Directives, HttpService}
 
-import tb_backend._
+import org.mojdan.md_backend._
 import model._
 import model.TBJsonProtocol._
-import tb_backend.util._
+import org.mojdan.md_backend.util._
 
 trait MoodScaleService extends HttpService with Config{
 
-	import tb_backend.model.Tables
+	import org.mojdan.md_backend.model.Tables
 
 	def postExperiences = (user: String) => {
 		entity(as[String]){s =>

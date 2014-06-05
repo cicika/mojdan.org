@@ -1,4 +1,4 @@
-package tb_backend.http.api
+package org.mojdan.md_backend.http.api
 
 import akka.actor._
 import akka.pattern._
@@ -26,10 +26,10 @@ import spray.routing._
 
 import spray.routing.{Directives, HttpService}
 
-import tb_backend._
+import org.mojdan.md_backend._
 import model._
 import model.TBJsonProtocol._
-import tb_backend.util._
+import org.mojdan.md_backend.util._
 
 
 trait ProgrammeService extends HttpService with Config
@@ -37,7 +37,7 @@ trait ProgrammeService extends HttpService with Config
 	private implicit val timeout = Timeout(15 seconds)
 	private val log = LoggerFactory.getLogger(classOf[UserAccountService])
 
-	import tb_backend.model.Tables
+	import org.mojdan.md_backend.model.Tables
 
 	//GET /programme/start
 

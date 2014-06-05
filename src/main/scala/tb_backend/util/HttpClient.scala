@@ -1,4 +1,4 @@
-package tb_backend.util
+package org.mojdan.md_backend.util
 
 import scala.util._
 import java.security.SecureRandom

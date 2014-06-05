@@ -1,4 +1,4 @@
-package tb_backend.model
+package org.mojdan.md_backend.model
 
 import java.util.Date
 

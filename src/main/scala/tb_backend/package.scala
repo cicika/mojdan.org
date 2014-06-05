@@ -1,4 +1,4 @@
-package tb_backend
+package org.mojdan.md_backend
 
 
 import com.typesafe.config.ConfigFactory

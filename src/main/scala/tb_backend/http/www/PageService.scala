@@ -1,3 +1,3 @@
-package tb_backend.http.www
+package org.mojdan.md_backend.http.www
 
 trait PageService {}

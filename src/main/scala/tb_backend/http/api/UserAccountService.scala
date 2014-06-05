@@ -1,4 +1,4 @@
-package tb_backend.http.api
+package org.mojdan.md_backend.http.api
 
 import akka.actor._
 import akka.pattern._
@@ -25,10 +25,10 @@ import spray.routing._
 
 import spray.routing.{Directives, HttpService}
 
-import tb_backend._
+import org.mojdan.md_backend._
 import model._
 import model.TBJsonProtocol._
-import tb_backend.util._
+import org.mojdan.md_backend.util._
 
 trait UserAccountService extends HttpService with Config 
 																						 with TokenGenerator{
@@ -36,7 +36,7 @@ trait UserAccountService extends HttpService with Config
 	private implicit val timeout = Timeout(15 seconds)
 	private val log = LoggerFactory.getLogger(classOf[UserAccountService])
 
-	import tb_backend.model.Tables
+	import org.mojdan.md_backend.model.Tables
 
 	def login = (context: ActorContext) => detach(){
 			log.debug("We are actuallz here....")
@@ -98,7 +98,7 @@ trait UserAccountService extends HttpService with Config
 	//def resetPassword // GET
 
 	def userData = (uid: String) => detach(){
-		import tb_backend.model.TBJsonProtocol.UserRowJsonFormat._
+		import org.mojdan.md_backend.model.TBJsonProtocol.UserRowJsonFormat._
 		val q = for {
 			u <- User if (u.uid === uid.toLong)
 		} yield (u.uid, u.email, u.username, u.firstname, u.lastname)

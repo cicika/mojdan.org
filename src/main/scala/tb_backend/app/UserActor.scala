@@ -1,10 +1,10 @@
-package tb_backend.app
+package org.mojdan.md_backend.app
 
 import akka.actor._
 import akka.event.Logging
 
-import tb_backend.model._
-import tb_backend.storage._
+import org.mojdan.md_backend.model._
+import org.mojdan.md_backend.storage._
 
 class UserActor extends Actor {
 	

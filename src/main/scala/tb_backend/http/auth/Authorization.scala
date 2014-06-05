@@ -1,4 +1,4 @@
-package tb_backend.http.auth
+package org.mojdan.md_backend.http.auth
 
 import akka.actor._
 import akka.actor.ActorSystem
@@ -19,7 +19,7 @@ import spray.http.{GenericHttpCredentials, HttpCredentials, HttpRequest, HttpHea
 import spray.routing.authentication._
 import spray.routing.{RequestContext, AuthenticationFailedRejection}
 
-import tb_backend._
+import org.mojdan.md_backend._
 import model._
 
 trait TBApiAuthenticator extends HttpAuthenticator[String]{

@@ -1,4 +1,4 @@
-package tb_backend.model
+package org.mojdan.md_backend.model
 
 case class Login(username: String, password: String)
 case class LoginResponse(uid: Long, token: String)

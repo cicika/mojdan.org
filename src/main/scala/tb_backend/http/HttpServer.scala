@@ -1,4 +1,4 @@
-package tb_backend.http
+package org.mojdan.md_backend.http
 
 import akka.actor.{Actor, ActorRef, ActorContext}
 import akka.pattern.ask
@@ -11,9 +11,9 @@ import scala.util.{Success, Failure}
 import spray.http.{StatusCodes, HttpMethods}
 import spray.routing.{Directives, HttpService}
 
-import tb_backend.http.api._
-import tb_backend.http.www._
-import tb_backend.http.auth._
+import org.mojdan.md_backend.http.api._
+import org.mojdan.md_backend.http.www._
+import org.mojdan.md_backend.http.auth._
 
 trait LoginService extends HttpService with UserAccountService{
 	def route(ctxx: ActorContext) = {

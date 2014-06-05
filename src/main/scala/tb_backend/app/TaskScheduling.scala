@@ -1,4 +1,4 @@
-package tb_backend.app
+package org.mojdan.md_backend.app
 
 import akka.actor._
 import akka.event.Logging
