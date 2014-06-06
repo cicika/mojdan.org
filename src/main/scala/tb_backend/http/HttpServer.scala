@@ -38,7 +38,7 @@ trait TBApiService extends HttpService with UserAccountService
 																			 with MoodScaleService
 																			 with UserAuthentication{
 
-	def tbApi(user: String) = {
+	def tbApi(user: String, ctxx: ActorContext) = {
 		//authenticate(tbAuthenticator) { user => 
 			method(HttpMethods.GET){
 				path("programme" / Segment){ s =>
@@ -52,7 +52,7 @@ trait TBApiService extends HttpService with UserAccountService
 						res
 				} ~
 				pathPrefix("me"){
-						userData(user)
+						userData(user, ctxx)
 				} ~
 				pathPrefix("scales"){
 					scales(user)
@@ -67,6 +67,9 @@ trait TBApiService extends HttpService with UserAccountService
 				path("start"){
 					postStartMood(user)	
 				}
+			} ~
+			pathPrefix("me"){
+				edit(user, ctxx)
 			} ~
 			pathPrefix("scales"){
 				postExperiences(user)
@@ -83,7 +86,7 @@ trait TBApiService extends HttpService with UserAccountService
 class TBApiServiceActor extends Actor with TBApiService {
 	def actorRefFactory = context
 
-	def receive = runRoute(authenticate(tbAuthenticator) {user => tbApi(user)})
+	def receive = runRoute(authenticate(tbAuthenticator) {user => tbApi(user, context)})
 }
 
 class LoginServiceActor extends Actor with LoginService {

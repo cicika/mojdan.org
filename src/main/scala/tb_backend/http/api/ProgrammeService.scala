@@ -34,7 +34,7 @@ import org.mojdan.md_backend.util._
 
 trait ProgrammeService extends HttpService with Config
 																					 with TimeUtils {
-	private implicit val timeout = Timeout(15 seconds)
+	//private implicit val timeout = Timeout(15 seconds)
 	private val log = LoggerFactory.getLogger(classOf[UserAccountService])
 
 	import org.mojdan.md_backend.model.Tables

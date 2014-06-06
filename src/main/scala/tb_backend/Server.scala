@@ -17,7 +17,7 @@ object Server extends App with Kernel {
 	override def main(args: Array[String]) = {
 
 		
-		//val userActor = system.actorOf(Props[UserActor], "user-actor")
+		val userActor = system.actorOf(Props[UserActor], "user-actor")
 		//val taskScheduler = system.actorOf(Props[TaskScheduling], "task-scheduler")
 
 		val apiService = system.actorOf(Props[TBApiServiceActor], "api-service")

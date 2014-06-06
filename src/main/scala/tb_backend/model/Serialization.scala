@@ -16,6 +16,27 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
 	//implicit val register = jsonFormat4(Register)
 	implicit val loginResponse = jsonFormat2(LoginResponse)
 
+  implicit object AccountJsonProtcol extends RootJsonFormat[Account]{
+    def write(a: Account) = JsObject(
+      "uid" -> JsNumber(a.uid),
+      "username" -> JsString(a.username.getOrElse("")),
+      "email" -> JsString(a.email.getOrElse("")),
+      "password" -> JsString(a.password.getOrElse("")),
+      "connector" -> JsString(a.connector.getOrElse("")),
+      "firstname" -> JsString(a.firstname.getOrElse("")),
+      "lastname" -> JsString(a.lastname.getOrElse(""))
+    )
+
+    def read(value: JsValue) = value.asJsObject.fields match {
+      case m: Map[String, JsValue] =>
+        Account(m.get("uid").map(e => e.convertTo[Long]).getOrElse(-1l), m.get("username").map(e => e.convertTo[String]),
+                m.get("password").map(e => e.convertTo[String]), m.get("email").map(e => e.convertTo[String]),
+                m.get("connector").map(e => e.convertTo[String]), m.get("firstname").map(e => e.convertTo[String]),
+                m.get("lastname").map(e => e.convertTo[String]))
+        case _ => throw new DeserializationException("Account expected")
+    }
+  }
+
 	implicit object LoginJsonFormat extends RootJsonFormat[Login]{
     def write(t: Login) = JsObject(
       "username" -> JsString(t.username),
@@ -140,4 +161,5 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
       case _ => throw new DeserializationException("MoodScales expected") 
     }
   }
+
 }

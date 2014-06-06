@@ -3,6 +3,21 @@ package org.mojdan.md_backend.model
 case class Login(username: String, password: String)
 case class LoginResponse(uid: Long, token: String)
 case class Register(username: String, password: String, email: String, connector: Option[String])
+case class UID(id: Long)
+case class Account(uid: Long, username: Option[String], password: Option[String], email: Option[String], connector: Option[String],
+                   firstname: Option[String], lastname: Option[String])
+object Account {
+  def asMap(acc: Account):Map[String, Any] = 
+    Map("uid" -> Some(acc.uid),
+        "username" -> acc.username,
+        "password" -> acc.password,
+        "connector" -> acc.connector,
+        "email" -> acc.email,
+        "firstname" -> acc.firstname,
+        "lastname" -> acc.lastname).
+        filter(e => e._2 != None).
+        map(e => (e._1 -> e._2.get))
+}
 
 case class GenerateFullProgrammeTasks(user: String)
 

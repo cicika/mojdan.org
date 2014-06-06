@@ -33,7 +33,6 @@ import org.mojdan.md_backend.util._
 trait UserAccountService extends HttpService with Config 
 																						 with TokenGenerator{
 
-	private implicit val timeout = Timeout(15 seconds)
 	private val log = LoggerFactory.getLogger(classOf[UserAccountService])
 
 	import org.mojdan.md_backend.model.Tables
@@ -45,23 +44,18 @@ trait UserAccountService extends HttpService with Config
 				Try(s.asJson.asJsObject.convertTo[Login]) match {
 					case Success(login) =>
 						log.debug("Json works...")
-						val q = for {
-								u <- User if (u.password === login.password && u.email === login.username)
-								t <- Auth if (u.uid === t.uid)
-							} yield (u.uid, t.token)
-
-						val result = db.withSession { session =>
-							q.list()(session)
-						}
-						log.debug("User login result... {}", result)
-						result.headOption match {
-							case Some(resp) => 
-								val res = LoginResponse(resp._1, resp._2.getOrElse(""))
-								respondWithStatus(StatusCodes.OK)
-								complete(res.toJson.toString)
-							case None =>
-								complete(StatusCodes.NotFound) 
-							}
+						onComplete((context.actorFor("/user/user-actor") ? login).mapTo[Option[LoginResponse]]){
+							case Success(r) =>
+								val res = r match {
+									case Some(resp) => 
+										respondWithStatus(StatusCodes.OK)
+										complete(resp.toJson.toString)
+									case None =>
+										complete(StatusCodes.NotFound) 
+									}
+									res
+							case Failure(ex) => complete(StatusCodes.InternalServerError)
+						}						
 						
 					case Failure(ex) => complete(StatusCodes.BadRequest) 
 				}
@@ -75,19 +69,24 @@ trait UserAccountService extends HttpService with Config
 		entity(as[String]){s =>
 			Try(s.asJson.asJsObject.convertTo[Register]) match {
 				case Success(regData) =>
-					val accessToken = generateToken
-					val userId = db.withSession{ implicit session =>
-						val userId = (User returning User.map(_.uid)) += 
-							UserRow(-1, regData.email, regData.username, regData.password)
-							//Connectors += ConnectorsRow(userId, Some(regData.connector), None)
-							Auth += AuthRow(userId, Some(accessToken))
-						userId
-					}
-					val response = LoginResponse(userId, accessToken)
-					respondWithStatus(StatusCodes.OK)
-					complete(response.toJson.toString)
+					onComplete((context.actorFor("/user/user-actor") ? regData).mapTo[Option[LoginResponse]]) {
+						case Success(res) =>
+							val result = res match {
+								case Some(resp) => 
+									respondWithStatus(StatusCodes.OK)
+									complete(resp.toJson.toString)
+								case None => 
+									log.error("Registration failed for email {}", regData)
+									complete(StatusCodes.BadRequest)
+							}
+							result
+						case Failure(ex) => 
+							log.error("Registration failed for email {}", regData)
+						  complete(StatusCodes.BadRequest)
+					}		
+					
 				case Failure(ex) => 
-					log.error("Registration failed for email")
+					log.error("Registration failed. Bad JSON.")
 					complete(StatusCodes.BadRequest)					
 			}
 		}
@@ -95,23 +94,38 @@ trait UserAccountService extends HttpService with Config
 
 	//def edit // POST
 
+	def edit = (user: String, context: ActorContext) => detach(){
+		entity(as[String]){s =>
+			Try(s.asJson.asJsObject.convertTo[Account]) match {
+				case Success(acc) =>
+					onComplete((context.actorFor("/user/user-actor") ? acc.copy(uid = user.toLong)).mapTo[Option[UID]]) {
+						case Success(Some(UID(uid))) => complete(StatusCodes.OK)
+						case Success(None) => complete(StatusCodes.InternalServerError)
+						case Failure(ex) => complete(StatusCodes.InternalServerError)
+					}
+				case Failure(ex) => 
+					log.error("Edit account bad request {}", s)
+					complete(StatusCodes.BadRequest)
+			}
+		}
+	}
+
 	//def resetPassword // GET
 
-	def userData = (uid: String) => detach(){
+	def userData = (uid: String, context: ActorContext) => detach(){
 		import org.mojdan.md_backend.model.TBJsonProtocol.UserRowJsonFormat._
-		val q = for {
-			u <- User if (u.uid === uid.toLong)
-		} yield (u.uid, u.email, u.username, u.firstname, u.lastname)
-
-		val res = db.withSession{session =>
-			q.list()(session)
-		}
-		res.headOption match {
-			case Some(u) => 
-				val user = UserRow(u._1, u._2, u._3, "", u._4, u._5)
-				respondWithStatus(StatusCodes.OK)
-				complete(user.toJson.toString)
-			case None => complete(StatusCodes.NotFound)
+		onComplete((context.actorFor("/user/user-actor") ? UID(uid.toLong)).mapTo[Option[UserRow]]) {
+			case Success(res) =>
+				val result = res match {
+					case Some(userRow) => 
+						respondWithStatus(StatusCodes.OK)
+						complete(userRow.toJson.toString)
+					case None => complete(StatusCodes.NotFound)
+				}
+				result
+			case Failure(ex) =>
+				log.error("Getting user data failed")
+				complete(StatusCodes.InternalServerError)
 		}
 	}
 

@@ -21,6 +21,7 @@ import spray.routing.{RequestContext, AuthenticationFailedRejection}
 
 import org.mojdan.md_backend._
 import model._
+import storage.UserStorage
 
 trait TBApiAuthenticator extends HttpAuthenticator[String]{
    implicit val actorSystem = ActorSystem()
@@ -33,25 +34,16 @@ trait TBApiAuthenticator extends HttpAuthenticator[String]{
 
 }
 
-class TBAuthAuthenticator extends TBApiAuthenticator with Tables with Config{
+class TBAuthAuthenticator extends TBApiAuthenticator with Tables 
+                                                     with Config
+                                                     with UserStorage{
   def realm = "TiBiras Auth Realm"
   def scheme = "TBAuth"
-  implicit val timeout = Timeout(15 seconds)
   def authenticate(credentials: Option[HttpCredentials], ctx: RequestContext) = credentials match {
     case Some(creds) => 
       if(creds.toString.startsWith(scheme)) { 
         val accessToken = creds.toString.drop(scheme.length + 1)  
-        val q = for{
-        	t <- Auth if (t.token === accessToken)
-        } yield t.uid
-
-        val result = db.withSession{session =>
-        	q.list()(session)	
-        }	
-        result.headOption match {
-        	case Some(uuid) => Future { Some(uuid.toString) }
-        	case None => Future { None }
-        }
+        Future{ checkToken(accessToken) }
       }
       else Future { None }
     case None => Future { None }
