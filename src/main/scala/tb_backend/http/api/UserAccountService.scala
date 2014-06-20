@@ -129,7 +129,15 @@ trait UserAccountService extends HttpService with Config
 		}
 	}
 
-	def forgotPassword = (context: ActorContext) => {
+	def forgotPass = (context: ActorContext) => {
+		complete(StatusCodes.NotImplemented)
+	}
+
+	def passReset = (context: ActorContext) => {
+		complete(StatusCodes.NotImplemented)
+	}
+
+	def passResetForm = (context: ActorContext, otp: String) => {
 		complete(StatusCodes.NotImplemented)
 	}
 
