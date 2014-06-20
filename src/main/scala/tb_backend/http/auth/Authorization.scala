@@ -50,6 +50,24 @@ class TBAuthAuthenticator extends TBApiAuthenticator with Tables
     }
 }
 
+class OAauth2Authenticator extends TBApiAuthenticator with Tables
+                                                      with Config
+                                                      with UserStorage{
+
+  def realm = "MojDan OAuth2 Realm"
+  def scheme = "OAuth2"
+  def authenticate(credentials: Option[HttpCredentials], ctx: RequestContext) = credentials match {
+    case Some(creds) => 
+      if(creds.toString.startsWith(scheme)) { 
+        val accessToken = creds.toString.drop(scheme.length + 1)  
+        Future{ checkToken(accessToken) }
+      }
+      else Future { None }
+    case None => Future { None }
+    }
+
+}
+
 trait UserAuthentication{
 
 	val tbAuthenticator = new TBAuthAuthenticator
