@@ -33,7 +33,8 @@ libraryDependencies ++= {
          "ch.qos.logback" % "logback-classic" % "1.0.13" % "compile",
          "postgresql" % "postgresql" % "9.1-901.jdbc4" % "compile",
          "org.joda" % "joda-convert" % "1.2" % "compile",
-         "joda-time" % "joda-time" % "2.2" % "compile"        
+         "joda-time" % "joda-time" % "2.2" % "compile",
+         "org.apache.commons" % "commons-email" % "1.3.2" % "compile"
 	)
 }
 
@@ -44,6 +45,13 @@ libraryDependencies ++= {
         "io.spray" % "spray-testkit" % "1.1.0" % "test"
     )
 }
+
+ ivyXML :=
+      <dependencies>
+        <dependency org="org.apache.commons" name="commons-email" rev="1.3.2">  
+            <exclude module="slf4j-jdk14"/>
+        </dependency>
+      </dependencies>
 
 crossPaths := false
 
