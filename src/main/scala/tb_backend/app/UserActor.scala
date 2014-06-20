@@ -24,7 +24,7 @@ class UserActor extends Actor with UserStorage
 			log.info("Received Login request...")
 			Future{ login(l) } onComplete {
 				case Success(value) => 
-					replyTo ! value.map(e => LoginResponse(e._1, e._2.get))
+					replyTo ! value.map(e => LoginResponse(None, e._2.get))
 				case Failure(ex) => 
 					replyTo ! None
 					log.error("Failed to login user {}", l)
@@ -33,7 +33,7 @@ class UserActor extends Actor with UserStorage
 			val accessToken = generateToken
 			val replyTo = sender
 			Future { register(accessToken, regData) } onComplete {
-				case Success(userId) => replyTo ! Some(LoginResponse(userId, accessToken))
+				case Success(userId) => replyTo ! Some(LoginResponse(None, accessToken))
 				case Failure(ex) => 
 					replyTo ! None
 					log.error("Failed to register new user with {}, with reason {}", regData, ex)
