@@ -2,9 +2,11 @@ package org.mojdan.md_backend.util
 
 import org.apache.commons.mail._
 
-trait Mailer {
+import org.mojdan.md_backend.util._
 
-	def sendEmail(hostname: String, to: Tuple2[String, String], from: String, 
+trait Mailer extends Config {
+
+	def sendEmail(to: Tuple2[String, String], from: String, 
 								subject: String, htmlContent: String, textContent: String) = {
 
 		val email = new HtmlEmail()
@@ -15,7 +17,7 @@ trait Mailer {
 		email.setSubject(subject)
 		email.setHtmlMsg(htmlContent)
 		email.setTextMsg(textContent)
-
+		email.setAuthentication(username, password)
 		email.send()
 	}
 }

@@ -19,11 +19,13 @@ import spray.http.{GenericHttpCredentials, HttpCredentials, HttpRequest, HttpHea
 import spray.routing.authentication._
 import spray.routing.{RequestContext, AuthenticationFailedRejection}
 
-import org.mojdan.md_backend._
-import model._
-import storage.UserStorage
+import org.mojdan.md_backend.model._
+import org.mojdan.md_backend.storage.UserStorage
+import org.mojdan.md_backend.util._
 
-trait TBApiAuthenticator extends HttpAuthenticator[String]{
+trait TBApiAuthenticator extends HttpAuthenticator[String] with Tables 
+                                                          with Config
+                                                          with UserStorage{
    implicit val actorSystem = ActorSystem()
    def params(ctx: RequestContext) = Map.empty
    implicit def executionContext = actorSystem.dispatcher
@@ -34,9 +36,7 @@ trait TBApiAuthenticator extends HttpAuthenticator[String]{
 
 }
 
-class TBAuthAuthenticator extends TBApiAuthenticator with Tables 
-                                                     with Config
-                                                     with UserStorage{
+class TBAuthAuthenticator extends TBApiAuthenticator {
   def realm = "TiBiras Auth Realm"
   def scheme = "TBAuth"
   def authenticate(credentials: Option[HttpCredentials], ctx: RequestContext) = credentials match {
@@ -50,9 +50,7 @@ class TBAuthAuthenticator extends TBApiAuthenticator with Tables
     }
 }
 
-class OAauth2Authenticator extends TBApiAuthenticator with Tables
-                                                      with Config
-                                                      with UserStorage{
+class OAauth2Authenticator extends TBApiAuthenticator{
 
   def realm = "MojDan OAuth2 Realm"
   def scheme = "OAuth2"
@@ -71,6 +69,7 @@ class OAauth2Authenticator extends TBApiAuthenticator with Tables
 trait UserAuthentication{
 
 	val tbAuthenticator = new TBAuthAuthenticator
+  val oauth2Authenticator = new OAauth2Authenticator
 
 }
 

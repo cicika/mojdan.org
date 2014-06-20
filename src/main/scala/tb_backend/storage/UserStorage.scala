@@ -1,8 +1,7 @@
 package org.mojdan.md_backend.storage
 
-import org.mojdan.md_backend._
-import model._
-import model.TBJsonProtocol._
+import org.mojdan.md_backend.model._
+import org.mojdan.md_backend.model.TBJsonProtocol._
 import org.mojdan.md_backend.util._
 
 import scala.slick.driver.PostgresDriver.simple._
