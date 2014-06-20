@@ -64,9 +64,9 @@ trait UserStorage extends Config{
 			fields(data.tail.map(e => (e._1.toString, e._2.toString)), ""), 
 			values(data.tail.map(e => (e._1.toString, e._2.toString)), ""), data("uid").asInstanceOf[Long])
 
-		val q = withDynSession{
-			Q.update(query).execute
-		}
+		//val q = withDynSession{
+		//	Q.update(query).execute
+		//}
 		data("uid").asInstanceOf[Long]
 
 	}
