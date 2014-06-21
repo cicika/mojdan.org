@@ -17,6 +17,11 @@ import org.mojdan.md_backend.http.auth._
 
 trait LoginService extends HttpService with UserAccountService{
 	def route(ctxx: ActorContext) = {
+		method(HttpMethods.GET) {
+			path("passreset" / Segment){s =>
+				passResetForm(ctxx, s)
+			}
+		} ~
 		method(HttpMethods.POST) {
 			pathPrefix("user"){
 				pathPrefix("login"){
@@ -25,10 +30,13 @@ trait LoginService extends HttpService with UserAccountService{
 				pathPrefix("register"){
 					register(ctxx)
 				} ~
+				pathPrefix("passreset"){
+					passReset(ctxx)
+				} ~
 				pathPrefix("forgotpass"){
-					forgotPassword(ctxx)
+					forgotPass(ctxx)
 				}
-			} //~ complete(StatusCodes.NotFound) 
+			} 
 		}
 	} 
 }

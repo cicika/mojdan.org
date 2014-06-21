@@ -63,15 +63,11 @@ trait UserStorage extends Config{
 			fields(data.tail.map(e => (e._1.toString, e._2.toString)), ""), 
 			values(data.tail.map(e => (e._1.toString, e._2.toString)), ""), data("uid").asInstanceOf[Long])
 
-		val q = db.withDynSession{
-			Q.update(query)
-		}
-		/*val res = q.first() match {
-			case Some(x) if x == 0 => -1l
-			case Some(x) if x == 1 => data("uid").asInstanceOf[Long]
-			case None => -1l
-		}*/
+		//val q = withDynSession{
+		//	Q.update(query).execute
+		//}
 		data("uid").asInstanceOf[Long]
+
 	}
 
 	private def fields(data: Map[String, String], output: String):String = data.size match {

@@ -1,7 +1,7 @@
 package org.mojdan.md_backend.model
 
 case class Login(username: String, password: String)
-case class LoginResponse(uid: Long, token: String)
+case class LoginResponse(uid: Option[Long], token: String)
 case class Register(username: String, password: String, email: String, connector: Option[String])
 case class UID(id: Long)
 case class Account(uid: Long, username: Option[String], password: Option[String], email: Option[String], connector: Option[String],
