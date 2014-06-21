@@ -1,8 +1,7 @@
 package org.mojdan.md_backend.storage
 
-import org.mojdan.md_backend._
-import model._
-import model.TBJsonProtocol._
+import org.mojdan.md_backend.model._
+import org.mojdan.md_backend.model.TBJsonProtocol._
 import org.mojdan.md_backend.util._
 
 import scala.slick.driver.PostgresDriver.simple._
@@ -64,11 +63,15 @@ trait UserStorage extends Config{
 			fields(data.tail.map(e => (e._1.toString, e._2.toString)), ""), 
 			values(data.tail.map(e => (e._1.toString, e._2.toString)), ""), data("uid").asInstanceOf[Long])
 
-		val q = withDynSession{
-			Q.update(query).execute
+		val q = db.withDynSession{
+			Q.update(query)
 		}
+		/*val res = q.first() match {
+			case Some(x) if x == 0 => -1l
+			case Some(x) if x == 1 => data("uid").asInstanceOf[Long]
+			case None => -1l
+		}*/
 		data("uid").asInstanceOf[Long]
-
 	}
 
 	private def fields(data: Map[String, String], output: String):String = data.size match {

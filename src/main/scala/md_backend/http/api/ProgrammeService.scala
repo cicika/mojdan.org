@@ -26,9 +26,8 @@ import spray.routing._
 
 import spray.routing.{Directives, HttpService}
 
-import org.mojdan.md_backend._
-import model._
-import model.TBJsonProtocol._
+import org.mojdan.md_backend.model._
+import org.mojdan.md_backend.model.TBJsonProtocol._
 import org.mojdan.md_backend.util._
 
 

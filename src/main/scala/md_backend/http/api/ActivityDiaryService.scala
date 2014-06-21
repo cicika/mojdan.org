@@ -24,10 +24,9 @@ import spray.routing._
 
 import spray.routing.{Directives, HttpService}
 
-import org.mojdan.md_backend._
-import model._
-import http._
-import model.TBJsonProtocol._
+import org.mojdan.md_backend.model._
+import org.mojdan.md_backend.http._
+import org.mojdan.md_backend.model.TBJsonProtocol._
 import org.mojdan.md_backend.util._
 
 trait ActivityDiaryService extends HttpService with Config{

@@ -19,9 +19,9 @@ import spray.http.{GenericHttpCredentials, HttpCredentials, HttpRequest, HttpHea
 import spray.routing.authentication._
 import spray.routing.{RequestContext, AuthenticationFailedRejection}
 
-import org.mojdan.md_backend._
-import model._
-import storage.UserStorage
+import org.mojdan.md_backend.model._
+import org.mojdan.md_backend.storage.UserStorage
+import org.mojdan.md_backend.util._
 
 trait TBApiAuthenticator extends HttpAuthenticator[String]{
    implicit val actorSystem = ActorSystem()
