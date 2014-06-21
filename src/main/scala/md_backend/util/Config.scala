@@ -19,5 +19,12 @@ trait Config {
 	val dbPassword = config.getString("db.password")
 	val db = Database.forURL(dbUrl, driver = dbDriver, user = dbUser, password = dbPassword)
 
+	val hostname = config.getString("mail.hostname")
+	val username = config.getString("mail.username")
+	val password = config.getString("mail.password")
+	val infoAddress = config.getString("mail.info")
+	val noReplyAddress = config.getString("mail.no-reply")
+	val adminAddress = config.getString("mail.admin")
+
 	implicit val timeout = Timeout(10 seconds)
 }
