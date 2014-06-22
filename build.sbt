@@ -8,13 +8,15 @@ organization := "org.mojdan"
 
 name := "md-backend"
 
-version := "1.0-SNAPSHOT"
+version := "1.1-SNAPSHOT"
 
 scalaVersion := "2.10.3"
 
 seq(PackageDist.newSettings: _*)
 
 seq(GitProject.gitSettings: _*)
+
+Twirl.settings
 
 libraryDependencies ++= {
 	Seq(		
