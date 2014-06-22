@@ -9,6 +9,7 @@ import scala.util.{Try, Success, Failure}
 
 import spray.http.StatusCodes
 import spray.httpx.SprayJsonSupport._
+import spray.httpx.TwirlSupport._
 import spray.httpx.unmarshalling.BasicUnmarshallers._
 import spray.json._
 import spray.json.DefaultJsonProtocol._
@@ -22,6 +23,7 @@ import org.mojdan.md_backend.util._
 
 trait IndexService extends HttpService with AppConfig {
 	def index = (context: ActorContext) => {
-		complete(StatusCodes.NotImplemented)
+		respondWithStatus(StatusCodes.OK)
+		complete(html.index())
 	}
 }
