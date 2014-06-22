@@ -4,7 +4,7 @@ import org.apache.commons.mail._
 
 import org.mojdan.md_backend.util._
 
-trait Mailer extends Config {
+trait Mailer extends AppConfig {
 
 	def sendEmail(to: Tuple2[String, String], from: String, 
 								subject: String, htmlContent: String, textContent: String) = {
@@ -17,7 +17,7 @@ trait Mailer extends Config {
 		email.setSubject(subject)
 		email.setHtmlMsg(htmlContent)
 		email.setTextMsg(textContent)
-		email.setAuthentication(username, password)
+		//email.setAuthentication(username, password)
 		email.send()
 	}
 }

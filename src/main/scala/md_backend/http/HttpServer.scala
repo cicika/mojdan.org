@@ -15,11 +15,19 @@ import org.mojdan.md_backend.http.api._
 import org.mojdan.md_backend.http.www._
 import org.mojdan.md_backend.http.auth._
 
-trait LoginService extends HttpService with UserAccountService{
+trait LoginService extends HttpService with UserAccountService
+																       with IndexService
+																		   with PageService {
 	def route(ctxx: ActorContext) = {
 		method(HttpMethods.GET) {
 			path("passreset" / Segment){s =>
 				passResetForm(ctxx, s)
+			} ~
+			path("page" / Segment){pageId =>
+				page(pageId, ctxx)
+			} ~
+			path("/"){
+				index(ctxx)
 			}
 		} ~
 		method(HttpMethods.POST) {
@@ -44,53 +52,52 @@ trait TBApiService extends HttpService with UserAccountService
 																			 with ProgrammeService
 																			 with ActivityDiaryService
 																			 with MoodScaleService
-																			 with UserAuthentication{
+																			 with UserAuthentication
+																			 with IndexService
+																		 	 with PageService{
 
 	def tbApi(user: String, ctxx: ActorContext) = {
-		//authenticate(tbAuthenticator) { user => 
-			method(HttpMethods.GET){
-				path("programme" / Segment){ s =>
-					val res = s match {
-						case "start" => startProgramme(user)
-						case "restart" => restartProgramme(user)
-						case "completed" => completedDays(user)
-						case "all" => programme(user)
-						case "active" => dailyProgramme(user)
-					}
-						res
-				} ~
-				pathPrefix("me"){
-						userData(user, ctxx)
-				} ~
-				pathPrefix("scales"){
-					scales(user)
-				} 
-		//}
-	}	~ 
+		method(HttpMethods.GET){
+			path("programme" / Segment){ s =>
+				val res = s match {
+					case "start" => startProgramme(user, ctxx)
+					case "restart" => restartProgramme(user, ctxx)
+					case "completed" => completedDays(user, ctxx)
+					case "all" => programme(user, ctxx)
+					case "active" => dailyProgramme(user, ctxx)
+				}
+					res
+			} ~
+			pathPrefix("me"){
+					userData(user, ctxx)
+			} ~
+			pathPrefix("scales"){
+				scales(user, ctxx)
+			} 
+		}	~ 
 		method(HttpMethods.POST){
+			path("page" / Segment){pageId =>
+				editPage(pageId, ctxx)
+			} ~
 			pathPrefix("activity"){
 				path("complete"){
-					postActivity(user)
+					postActivity(user, ctxx)
 				} ~
 				path("start"){
-					postStartMood(user)	
+					postStartMood(user, ctxx)	
 				}
 			} ~
 			pathPrefix("me"){
 				edit(user, ctxx)
 			} ~
 			pathPrefix("scales"){
-				postExperiences(user)
-			}/* ~
-					path(Segment){d =>
-						complete(StatusCodes.OK)
-					}*/
-				//}			
+				postExperiences(user, ctxx)
+			}	
 		}~
 			complete(StatusCodes.NotFound)		
 	}
 }
-	
+
 class TBApiServiceActor extends Actor with TBApiService {
 	def actorRefFactory = context
 

@@ -42,7 +42,8 @@ libraryDependencies ++= {
      Seq(
         "org.scalatest" %% "scalatest" % "2.0" % "test",
         "com.typesafe.akka" %% "akka-testkit" % "2.1.4" % "test",
-        "io.spray" % "spray-testkit" % "1.1.0" % "test"
+        "io.spray" % "spray-testkit" % "1.1.0" % "test",
+         "org.specs2" %% "specs2" % "2.3.12" % "test"
     )
 }
 

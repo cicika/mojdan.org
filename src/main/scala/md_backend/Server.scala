@@ -18,7 +18,7 @@ object Server extends App with Kernel {
 
 		
 		val userActor = system.actorOf(Props[UserActor], "user-actor")
-		//val taskScheduler = system.actorOf(Props[TaskScheduling], "task-scheduler")
+		val applicationActor = system.actorOf(Props[ApplicationActor], "application-actor")
 
 		val apiService = system.actorOf(Props[TBApiServiceActor], "api-service")
 		val loginService = system.actorOf(Props[LoginServiceActor], "login-service")

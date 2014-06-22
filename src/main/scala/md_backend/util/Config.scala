@@ -4,20 +4,18 @@ import akka.util.Timeout
 
 import com.typesafe.config.ConfigFactory
 
+import org.slf4j.LoggerFactory
+
 import scala.concurrent.duration._
 
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import Q.interpolation
 
-trait Config {
+sealed trait Config {
 	val config = ConfigFactory.load()	
-	
-	val dbUrl = "jdbc:postgresql://localhost/%s" format config.getString("db.database")
-	val dbDriver = "org.postgresql.Driver"
-	val dbUser = config.getString("db.username")
-	val dbPassword = config.getString("db.password")
-	val db = Database.forURL(dbUrl, driver = dbDriver, user = dbUser, password = dbPassword)
+}
+trait AppConfig extends Config{		
 
 	val hostname = config.getString("mail.hostname")
 	val username = config.getString("mail.username")
@@ -26,5 +24,17 @@ trait Config {
 	val noReplyAddress = config.getString("mail.no-reply")
 	val adminAddress = config.getString("mail.admin")
 
-	implicit val timeout = Timeout(10 seconds)
+	implicit val timeout = Timeout(15 seconds)
+
+	val apiLogger = LoggerFactory.getLogger(classOf[AppConfig])
+}
+
+trait DBConfig extends Config{
+	val dbUrl = "jdbc:postgresql://localhost/%s" format config.getString("db.database")
+	val dbDriver = "org.postgresql.Driver"
+	val dbUser = config.getString("db.username")
+	val dbPassword = config.getString("db.password")
+	val db = Database.forURL(dbUrl, driver = dbDriver, user = dbUser, password = dbPassword)
+
+	val dbLogger = LoggerFactory.getLogger(classOf[DBConfig])
 }

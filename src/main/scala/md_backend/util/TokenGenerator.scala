@@ -6,6 +6,7 @@ import java.security.SecureRandom
 trait TokenGenerator {
   
   val TOKEN_LENGTH = 32
+  val REFRESH_TOKEN_LENGTH = 56
   val TOKEN_CHARS = 
      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   val secureRandom = new SecureRandom()

@@ -5,12 +5,6 @@ import akka.actor.ActorSystem
 import akka.pattern._
 import akka.util._
 
-import com.typesafe.config.ConfigFactory
-
-import scala.slick.driver.PostgresDriver.simple._
-import scala.slick.jdbc.{GetResult, StaticQuery => Q}
-import Q.interpolation
-
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.util.{Success, Failure}
@@ -23,9 +17,8 @@ import org.mojdan.md_backend.model._
 import org.mojdan.md_backend.storage.UserStorage
 import org.mojdan.md_backend.util._
 
-trait TBApiAuthenticator extends HttpAuthenticator[String] with Tables 
-                                                          with Config
-                                                          with UserStorage{
+trait TBApiAuthenticator extends HttpAuthenticator[String] with AppConfig
+                                                           with UserStorage{
    implicit val actorSystem = ActorSystem()
    def params(ctx: RequestContext) = Map.empty
    implicit def executionContext = actorSystem.dispatcher

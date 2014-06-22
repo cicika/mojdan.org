@@ -8,8 +8,10 @@ import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import Q.interpolation
 
+import scala.annotation.tailrec
 
-trait UserStorage extends Config{
+
+trait UserStorage extends DBConfig{
 
 	import org.mojdan.md_backend.model.Tables
 
@@ -66,20 +68,27 @@ trait UserStorage extends Config{
 		//val q = withDynSession{
 		//	Q.update(query).execute
 		//}
+		/*val res = q.first() match {
+			case Some(x) if x == 0 => -1l
+			case Some(x) if x == 1 => data("uid").asInstanceOf[Long]
+			case None => -1l
+		}*/
 		data("uid").asInstanceOf[Long]
 
 	}
 
+	@tailrec
 	private def fields(data: Map[String, String], output: String):String = data.size match {
 		case x if x == 0 => output.dropRight(2) + ")"
 		case x if x == 1 => fields(data.tail, "(" + data.head._1 + ", ")
 		case x => fields(data.tail, output + data.head._1 + ", ")
 	}
 
+	@tailrec
 	private def values(data: Map[String, String], output: String):String = data.size match {
 		case x if x == 0 => output.dropRight(2) + ")"
-		case x if x == 1 => fields(data.tail, "('" + data.head._2 + "', ")
-		case x => fields(data.tail, output + "'" + data.head._2 + "', ")
+		case x if x == 1 => values(data.tail, "('" + data.head._2 + "', ")
+		case x => values(data.tail, output + "'" + data.head._2 + "', ")
 	}
 	
 }

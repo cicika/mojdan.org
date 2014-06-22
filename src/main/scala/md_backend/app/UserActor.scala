@@ -13,7 +13,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Success, Failure}
 
 class UserActor extends Actor with UserStorage
-														  with TokenGenerator{
+														  with TokenGenerator
+														  with AppConfig{
 	
 	private val log = Logging(context.system, this)
 	log.debug("Starting...")  
