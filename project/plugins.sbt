@@ -2,4 +2,6 @@ addSbtPlugin("com.twitter" %% "sbt-package-dist" % "1.0.6-SNAPSHOT" from "file:/
 
 addSbtPlugin("io.spray" % "sbt-twirl" % "0.7.0")
 
+addSbtPlugin("io.spray" % "sbt-revolver" % "0.7.2")
+
 resolvers += "spray repo" at "http://repo.spray.io"

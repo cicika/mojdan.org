@@ -18,6 +18,8 @@ seq(GitProject.gitSettings: _*)
 
 Twirl.settings
 
+Revolver.settings
+
 libraryDependencies ++= {
 	Seq(		
 		"com.typesafe.akka" %% "akka-actor" % "2.1.4" % "compile",
