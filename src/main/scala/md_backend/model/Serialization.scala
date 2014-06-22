@@ -104,7 +104,7 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
 
   implicit object CompletedRowJsonProtocol extends RootJsonFormat[CompletedRow]{
     def write(c: CompletedRow) = JsObject(
-      "completed" -> JsString(c.completed.getOrElse("")),
+      "completed" -> JsArray(c.completed.map(e => e.split(",").map(a => JsNumber(a.toInt)).toList).getOrElse(List())),
       "active" -> JsNumber(c.active)
     )
 

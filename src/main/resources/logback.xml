@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration scan="false" debug="false">
- <!-- <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+ <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>[%4p] [%d{ISO8601}] %c{1}: %m%n</pattern>
         </encoder>
-    </appender> -->
+    </appender> 
     <appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>./logs/akka.log</File>
         <encoder>
@@ -20,6 +20,6 @@
      <logger name="scala.slick" level="INFO"/>
     <root level="DEBUG">
         <appender-ref ref="R"/>
-        <!--<appender-ref ref="stdout"/>-->
+        <appender-ref ref="stdout"/>
     </root>
 </configuration>
