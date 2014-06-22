@@ -4,6 +4,8 @@ import akka.actor.{Actor, ActorRef, ActorContext}
 import akka.pattern.ask
 import akka.util.Timeout
 
+import java.io.File
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.util.{Success, Failure}
@@ -26,7 +28,10 @@ trait LoginService extends HttpService with UserAccountService
 			path("page" / Segment){pageId =>
 				page(pageId, ctxx)
 			} ~
-			path("/"){
+			path("www" / Segment / Segment){(arg1, fileName) =>
+				getFromFile(new File("www/%s/%s" format (arg1, fileName)))
+			} ~
+			pathSingleSlash{
 				index(ctxx)
 			}
 		} ~
