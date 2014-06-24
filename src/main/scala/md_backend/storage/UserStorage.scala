@@ -11,25 +11,26 @@ import Q.interpolation
 import scala.annotation.tailrec
 
 
-trait UserStorage extends DBConfig{
+trait UserStorage extends DBConfig with Hashing{
 
 	import org.mojdan.md_backend.model.Tables
 
 	def login(l: Login):Option[Tuple2[Long, Option[String]]] = {
 		val q = for {
-							u <- User if (u.password === l.password && u.email === l.username)
+							u <- User if (u.password === hash(l.password) && u.email === l.username)
 							t <- Auth if (u.uid === t.uid)
 						} yield (u.uid, t.token)
 
 		val result = db.withSession { session =>
 			q.list()(session)
 		}
+		dbLogger.debug("Login result %s for data %s" format(result.toString, l.toString))
 		result.headOption
 	}
 
 	def register(accessToken: String, regData: Register):Long = db.withSession{ implicit session =>
 		val userId = (User returning User.map(_.uid)) += 
-		UserRow(-1, regData.email, regData.username, regData.password)
+		UserRow(-1, regData.email, hash(regData.username), regData.password)
 		//Connectors += ConnectorsRow(userId, Some(regData.connector), None)
 		Auth += AuthRow(userId, Some(accessToken))
 		userId
@@ -75,6 +76,28 @@ trait UserStorage extends DBConfig{
 		}*/
 		data("uid").asInstanceOf[Long]
 
+	}
+
+	def hashAllPasswords = {
+		val q = for {
+			u <- User 
+		} yield (u.uid, u.password)
+
+		val uids = db.withSession{ session =>
+			q.list()(session)
+		}.map(e => (e._1, hash(e._2)))
+
+		uids.foreach{e =>
+			val qi = for {
+				u <- User if u.uid === e._1
+			} yield u.password
+
+			db.withSession{ implicit session =>
+				qi.update(e._2)
+				qi.updateInvoker
+				qi.updateStatement
+			}
+		}
 	}
 
 	@tailrec
