@@ -68,9 +68,9 @@ class UserActor extends Actor with UserStorage
 			val replyTo = sender
 			Future { userData(email) } onComplete {
 				case Success(x) => x match {
-						case Some(u: UserRow) =>
-							replyTo ! Some(u.email)
+						case Some(u: UserRow) =>							
 							val otp = OtpRow(u.email, generateOtp, new Timestamp(now))
+							replyTo ! Some(otp.otp)
 							Future {
 								deleteOtp(email) 
 								insertOtp(otp) 

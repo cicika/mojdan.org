@@ -38,7 +38,7 @@ trait DBConfig extends Config{
 
 	val dbLogger = LoggerFactory.getLogger(classOf[DBConfig])
 
-	val cryptoKey = config.getString("crypto-key")
+	val cryptoKey = config.getString("db.crypto-key")
 
 	val otpExpiry = config.getInt("expiry.otp")*60*60*1000l
 	val tokenExpiry = config.getInt("expiry.token")*60*60*1000l

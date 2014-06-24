@@ -21,9 +21,9 @@ trait OtpStorage extends DBConfig with TokenGenerator {
 		dbLogger.info("deleteOtp older than %d" format timestamp)
 	}
 
-	def deleteOtp(otp: String) = db.withSession{ implicit session =>
-		sqlu"delete from otps where otp = $otp".first
-		dbLogger.info("deleteOtp %s" format otp)
+	def deleteOtp(email: String) = db.withSession{ implicit session =>
+		sqlu"delete from otps where email = $email".first
+		dbLogger.info("deleteOtp %s" format email)
 	}
 
 	def emailForOtp(otp: String) = {
