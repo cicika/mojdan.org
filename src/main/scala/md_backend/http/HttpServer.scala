@@ -22,9 +22,6 @@ trait LoginService extends HttpService with UserAccountService
 																		   with PageService {
 	def route(ctxx: ActorContext) = {
 		method(HttpMethods.GET) {
-			path("passreset" / Segment){s =>
-				passResetForm(ctxx, s)
-			} ~
 			path("page" / Segment){pageId =>
 				page(pageId, ctxx)
 			} ~
