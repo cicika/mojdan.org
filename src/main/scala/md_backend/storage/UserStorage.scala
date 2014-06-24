@@ -30,7 +30,7 @@ trait UserStorage extends DBConfig with Hashing{
 
 	def register(accessToken: String, regData: Register):Long = db.withSession{ implicit session =>
 		val userId = (User returning User.map(_.uid)) += 
-		UserRow(-1, regData.email, hash(regData.username), regData.password)
+		UserRow(-1, regData.email, regData.username, hash(regData.password))
 		//Connectors += ConnectorsRow(userId, Some(regData.connector), None)
 		Auth += AuthRow(userId, Some(accessToken))
 		userId
