@@ -39,7 +39,7 @@ trait ProgrammeService extends HttpService with AppConfig
 
 	def restartProgramme = (user: String, context: ActorContext) => {
 		onComplete((context.actorFor("/user/application-actor") ? RestartProgramme(user.toLong)).mapTo[Done]){
-			case Success(x) => complete(StatusCodes.OK)
+			case Success(x) => complete(StatusCodes.NoContent)
 			case Failure(ex) => 
 				apiLogger.error("GET /programme/restart timeout, user {}", user)
 				complete(StatusCodes.InternalServerError)

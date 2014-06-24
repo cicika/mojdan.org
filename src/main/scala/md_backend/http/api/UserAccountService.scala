@@ -125,9 +125,7 @@ trait UserAccountService extends HttpService with AppConfig
 											ForgotPassword(email.convertTo[String])).mapTo[Option[String]]) {
 						case Success(res) =>
 							res match {
-								case Some(otp) => 
-									respondWithStatus(StatusCodes.OK)
-									complete(resetPassLink(otp).toJson.toString)
+								case Some(otp) => complete(StatusCodes.NoContent)
 								case None => complete(StatusCodes.NotFound)
 							}
 						case Failure(ex) => complete(StatusCodes.InternalServerError)
@@ -142,7 +140,7 @@ trait UserAccountService extends HttpService with AppConfig
 			Try(s.asJson.asJsObject.convertTo[ResetPassword]) match {
 				case Success(rp) =>
 					onComplete((context.actorFor("/user/user-actor") ? rp).mapTo[Int]) {
-						case Success(res) if res == 1 => complete(StatusCodes.OK)
+						case Success(res) if res == 1 => complete(StatusCodes.NoContent)
 						case Success(res) if res != 1 => complete(StatusCodes.NotFound)
 						case Failure(ex) => 
 							apiLogger.error("POST /user/passreset 500, reason {}", ex)

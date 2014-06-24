@@ -28,7 +28,7 @@ trait ActivityDiaryService extends HttpService with AppConfig{
 			s.asJson.asJsObject.fields.get("start_mood") match {
 				case Some(x) =>
 					onComplete((context.actorFor("/user/application-actor") ? StartMood(user.toLong, x.convertTo[Int])).mapTo[Long]) {
-						case Success(_) => complete(StatusCodes.OK)
+						case Success(_) => complete(StatusCodes.NoContent)
 						case Failure(ex) =>
 							apiLogger.error("POST /activity/start timeout, user {}", user)
 							complete(StatusCodes.InternalServerError)
@@ -44,7 +44,7 @@ trait ActivityDiaryService extends HttpService with AppConfig{
 			Try(s.asJson.asJsObject.convertTo[ActivityDiaryRow]) match {
 				case Success(ad) =>
 					onComplete((context.actorFor("/user/application-actor") ? ad.copy(uid = user.toLong)).mapTo[Long]){
-						case Success(_) => complete(StatusCodes.OK)
+						case Success(_) => complete(StatusCodes.NoContent)
 						case Failure(ex) =>
 							apiLogger.error("POST /activity/complete timeout, for user {}", user)
 							complete(StatusCodes.InternalServerError)

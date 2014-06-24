@@ -40,7 +40,7 @@ trait MoodScaleService extends HttpService with AppConfig{
 					onComplete((context.actorFor("/user/application-actor") ? ms.copy(uid = user.toLong)).mapTo[Option[Long]]) {
 						case Success(res) => 
 							val response = res match {
-								case Some(x) => complete(StatusCodes.OK)
+								case Some(x) => complete(StatusCodes.NoContent)
 								case None => complete(StatusCodes.InternalServerError)
 							}
 							response
