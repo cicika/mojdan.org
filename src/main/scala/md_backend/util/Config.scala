@@ -20,9 +20,9 @@ trait AppConfig extends Config{
 	val hostname = config.getString("mail.hostname")
 	val username = config.getString("mail.username")
 	val password = config.getString("mail.password")
-	val infoAddress = config.getString("mail.info")
-	val noReplyAddress = config.getString("mail.no-reply")
-	val adminAddress = config.getString("mail.admin")
+	val INFO = config.getString("mail.info")
+	val NO_REPLY = config.getString("mail.no-reply")
+	val ADMIN = config.getString("mail.admin")
 
 	implicit val timeout = Timeout(15 seconds)
 

@@ -11,7 +11,7 @@ import spray.http.StatusCodes
 import spray.httpx.SprayJsonSupport._
 import spray.httpx.unmarshalling.BasicUnmarshallers._
 import spray.json._
-import spray.json.DefaultJsonProtocol._
+//import spray.json.DefaultJsonProtocol._
 import spray.routing._
 import spray.routing.{Directives, HttpService}
 
@@ -20,7 +20,8 @@ import org.mojdan.md_backend.model.TBJsonProtocol._
 import org.mojdan.md_backend.util._
 
 trait UserAccountService extends HttpService with AppConfig 
-																						 with TokenGenerator{
+																						 with TokenGenerator
+																						 with LinkGenerator{
 
 	import org.mojdan.md_backend.model.Tables
 
@@ -116,16 +117,24 @@ trait UserAccountService extends HttpService with AppConfig
 		}
 	}
 
-	def forgotPass = (context: ActorContext) => {
-		complete(StatusCodes.NotImplemented)
+	def forgotPass = (context: ActorContext) => detach(){
+		entity(as[String]){s =>
+			s.asJson.asJsObject.fields.get("email") match {
+				case Some(email) =>
+					onComplete((context.actorFor("/user/user-actor") ? ForgotPassword(email.convertTo[String])).mapTo[Option[String]]) {
+						case Success(res) =>
+							res match {
+								case Some(otp) => 
+									respondWithStatus(StatusCodes.OK)
+									complete(resetPassLink(otp).toJson.toString)
+							}
+					}
+			}
+		}
+		//complete(StatusCodes.NotImplemented)
 	}
 
 	def passReset = (context: ActorContext) => {
 		complete(StatusCodes.NotImplemented)
 	}
-
-	def passResetForm = (context: ActorContext, otp: String) => {
-		complete(StatusCodes.NotImplemented)
-	}
-
 }

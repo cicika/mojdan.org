@@ -58,6 +58,17 @@ trait UserStorage extends DBConfig with Hashing{
 		res.headOption.map(u => UserRow(u._1, u._2, u._3, "", u._4, u._5))
 	}
 
+	def userData(email: String): Option[UserRow] = {
+		val q = for {
+			u <- User if (u.email === email)
+		} yield (u.uid, u.email, u.username, u.firstname, u.lastname)
+
+		val res = db.withSession{session =>
+			q.list()(session)
+		}
+		res.headOption.map(u => UserRow(u._1, u._2, u._3, "", u._4, u._5))
+	}
+
 	def update(data: Map[String, Any]) = {
 		import scala.slick.driver.JdbcDriver.backend.Database
 		import Database.dynamicSession
