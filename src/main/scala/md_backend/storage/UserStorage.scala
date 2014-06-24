@@ -86,7 +86,21 @@ trait UserStorage extends DBConfig with Hashing{
 			case None => -1l
 		}*/
 		data("uid").asInstanceOf[Long]
+	}
 
+	def updatePassword(email: String, newPassword: String) = {
+		val q = for {
+			u <- User if u.email === email
+		} yield u.password
+
+		val res = db.withSession {implicit session =>
+			val affectedRows = q.update(hash(newPassword))
+			q.updateInvoker
+			q.updateStatement
+			affectedRows
+		}		
+		dbLogger.debug("updatePassword res %s" format res.toString)
+		res
 	}
 
 	def hashAllPasswords = {

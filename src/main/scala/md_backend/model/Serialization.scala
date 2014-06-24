@@ -15,6 +15,7 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
 	//implicit val login = jsonFormat2(Login)
 	//implicit val register = jsonFormat4(Register)
 	implicit val loginResponse = jsonFormat2(LoginResponse)
+  implicit val resetPassword = jsonFormat2(ResetPassword)
 
   implicit object AccountJsonProtcol extends RootJsonFormat[Account]{
     def write(a: Account) = JsObject(

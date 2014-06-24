@@ -85,6 +85,17 @@ class UserActor extends Actor with UserStorage
 					replyTo ! None
 					log.error("Failed to get user for email {}", email)  
 			}
+		case ResetPassword(otp, newPassword) =>
+			val replyTo = sender
+			for {
+				e <- Future { emailForOtp(otp) }
+				p <- Future { updatePassword(e.getOrElse(""), newPassword) }
+			} yield {
+				replyTo ! p
+
+				if(p == 1) Future { deleteOtp(e.getOrElse("")) }
+			}
+
 		case Terminated(_) => log.error("terminated...")
 		case _ => log.info("Unknown message received....")
 	}

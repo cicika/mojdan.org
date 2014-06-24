@@ -121,20 +121,35 @@ trait UserAccountService extends HttpService with AppConfig
 		entity(as[String]){s =>
 			s.asJson.asJsObject.fields.get("email") match {
 				case Some(email) =>
-					onComplete((context.actorFor("/user/user-actor") ? ForgotPassword(email.convertTo[String])).mapTo[Option[String]]) {
+					onComplete((context.actorFor("/user/user-actor") ? 
+											ForgotPassword(email.convertTo[String])).mapTo[Option[String]]) {
 						case Success(res) =>
 							res match {
 								case Some(otp) => 
 									respondWithStatus(StatusCodes.OK)
 									complete(resetPassLink(otp).toJson.toString)
+								case None => complete(StatusCodes.NotFound)
 							}
+						case Failure(ex) => complete(StatusCodes.InternalServerError)
 					}
+				case None => complete(StatusCodes.BadRequest)
 			}
 		}
-		//complete(StatusCodes.NotImplemented)
 	}
 
-	def passReset = (context: ActorContext) => {
-		complete(StatusCodes.NotImplemented)
+	def passReset = (context: ActorContext) => detach(){
+		entity(as[String]){ s =>
+			Try(s.asJson.asJsObject.convertTo[ResetPassword]) match {
+				case Success(rp) =>
+					onComplete((context.actorFor("/user/user-actor") ? rp).mapTo[Int]) {
+						case Success(res) if res == 1 => complete(StatusCodes.OK)
+						case Success(res) if res != 1 => complete(StatusCodes.NotFound)
+						case Failure(ex) => 
+							apiLogger.error("POST /user/passreset 500, reason {}", ex)
+							complete(StatusCodes.InternalServerError)
+					}
+				case Failure(ex) => complete(StatusCodes.BadRequest)
+			}
+		}
 	}
 }

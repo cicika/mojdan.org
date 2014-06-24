@@ -24,6 +24,7 @@ object Account {
 }
 
 case class ForgotPassword(email: String)
+case class ResetPassword(otp: String, new_password: String)
 
 case class GenerateFullProgrammeTasks(user: String)
 case class MDTime(dayofyear: Int, year: Int)

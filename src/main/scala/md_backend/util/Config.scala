@@ -30,6 +30,7 @@ trait AppConfig extends Config{
 }
 
 trait DBConfig extends Config{
+	
 	val dbUrl = "jdbc:postgresql://localhost/%s" format config.getString("db.database")
 	val dbDriver = "org.postgresql.Driver"
 	val dbUser = config.getString("db.username")
