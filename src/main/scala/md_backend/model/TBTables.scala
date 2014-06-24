@@ -298,4 +298,33 @@ trait Tables {
   /** Collection-like TableQuery object for table Completed */
   lazy val Completed = new TableQuery(tag => new Completed(tag))
 
+  /** Entity class storing rows of table Otp
+   *  @param email Database column email 
+   *  @param otp Database column otp 
+   *  @param created Database column created  */
+  case class OtpRow(email: String, otp: String, created: java.sql.Timestamp)
+  /** GetResult implicit for fetching OtpRow objects using plain SQL queries */
+  implicit def GetResultOtpRow(implicit e0: GR[String], e1: GR[String], e2: GR[java.sql.Timestamp]): GR[OtpRow] = GR{
+    prs => import prs._
+    OtpRow.tupled((<<[String], <<[String], <<[java.sql.Timestamp]))
+  }
+  /** Table description of table otps. Objects of this class serve as prototypes for rows in queries. */
+  class Otp(tag: Tag) extends Table[OtpRow](tag, "otps") {
+    def * = (email, otp, created) <> (OtpRow.tupled, OtpRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (email, otp, created).shaped.<>({r=>import r._; _1.map(_=> OtpRow.tupled((_1, _2, _3)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    
+    /** Database column email  */
+    val email: Column[String] = column[String]("email")
+    /** Database column otp  */
+    val otp: Column[String] = column[String]("otp")
+    /** Database column created  */
+    val created: Column[java.sql.Timestamp] = column[java.sql.Timestamp]("created")
+    
+    /** Uniqueness Index over (email) (database name CONSTRAINT_INDEX_D) */
+    val index1 = index("CONSTRAINT_INDEX_D", email, unique=true)
+  }
+  /** Collection-like TableQuery object for table Otp */
+  lazy val Otp = new TableQuery(tag => new Otp(tag))
+
 }
