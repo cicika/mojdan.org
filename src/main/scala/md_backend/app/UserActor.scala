@@ -13,7 +13,7 @@ import org.mojdan.md_backend.util._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Success, Failure}
+import scala.util.{Try, Success, Failure}
 
 class UserActor extends Actor with UserStorage
 															with OtpStorage
@@ -75,9 +75,13 @@ class UserActor extends Actor with UserStorage
 								deleteOtp(email) 
 								insertOtp(otp) 
 							}
-							Future { sendEmail(Tuple2(email, ""), NO_REPLY, RESET_PW_SUBJECT, 
+							Future { 
+								Try(sendEmail(Tuple2(email, ""), NO_REPLY, RESET_PW_SUBJECT, 
 																 mail.html.resetPassLink(otp.otp).toString, 
-																 mail.html.resetPassLink(otp.otp).toString) }
+																 mail.txtmail.txt.resetPassLink(otp.otp).toString)) match {
+									case Success(_) => log.debug("Email to {} sent!", email)
+									case Failure(ex) => log.error("Email sending failed to {}, reason {}, stack trace {}", email, ex, ex.printStackTrace)
+									} }
 						case None => replyTo ! None
 					}					
 					
