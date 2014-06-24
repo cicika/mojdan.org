@@ -23,6 +23,8 @@ object Account {
         map(e => (e._1 -> e._2.get))
 }
 
+case class ForgotPassword(email: String)
+
 case class GenerateFullProgrammeTasks(user: String)
 case class MDTime(dayofyear: Int, year: Int)
 
