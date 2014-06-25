@@ -22,14 +22,15 @@ object Server extends App with Kernel {
 		val apiService = system.actorOf(Props[TBApiServiceActor], "api-service")
 		val loginService = system.actorOf(Props[LoginServiceActor], "login-service")
 
-		IO(Http) ! Http.Bind(apiService, interface = "127.0.0.1", port = 8088)
-		IO(Http) ! Http.Bind(loginService, interface = "127.0.0.1", port = 8087)
+		IO(Http) ! Http.Bind(apiService, interface = hostname, port = 8088)
+		IO(Http) ! Http.Bind(loginService, interface = hostname, port = 8087)
 	}	
 }
 
 trait Kernel extends Bootable{
 	val config = ConfigFactory.load()
 	val systemName = "tibiraskernel"
+	val hostname = config.getString("api.host")
 	lazy implicit val system = ActorSystem(systemName, config)
 	def startup = {}
   def shutdown = {} 
