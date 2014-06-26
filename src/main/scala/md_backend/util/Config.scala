@@ -23,6 +23,7 @@ trait AppConfig extends Config{
 	val INFO = config.getString("mail.info")
 	val NO_REPLY = config.getString("mail.no-reply")
 	val ADMIN = config.getString("mail.admin")
+	val pwHashingEnabled = config.getBoolean("pass-hashing")
 
 	implicit val timeout = Timeout(15 seconds)
 
