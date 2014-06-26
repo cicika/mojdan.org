@@ -12,7 +12,7 @@ version := "1.1"
 
 scalaVersion := "2.10.3"
 
-seq(PackageDist.newSettings: _*)
+seq(PackageDist.newSettings: _*) ++ Seq(PackageDist.packageDistScriptsPath := Option(file("./www/")))
 
 seq(GitProject.gitSettings: _*)
 
