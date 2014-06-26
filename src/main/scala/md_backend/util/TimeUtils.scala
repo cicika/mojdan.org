@@ -49,7 +49,9 @@ trait TimeUtils {
 	//TODO check why these implicits fail in run time
 	implicit def timestamp2mdTime(timestamp: Timestamp): MDTime = {
 		val calendar = Calendar.getInstance()
-		calendar.set(Calendar.MILLISECOND, timestamp.getTime().toInt)
+		calendar.set(Calendar.YEAR, timestamp.getYear())
+		calendar.set(Calendar.MONTH, timestamp.getMonth())
+		calendar.set(Calendar.DAY_OF_MONTH, timestamp.getDate())
 		MDTime(calendar.get(Calendar.DAY_OF_YEAR), calendar.get(Calendar.YEAR))
 	}
 

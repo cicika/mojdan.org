@@ -58,15 +58,10 @@ class ApplicationActor extends Actor with AppConfig
 			
 				val active = c.get.active
 				val dateStarted = c.get.dateStarted
-				val activeDayCheck = activeDay(dateStarted, active)
-			val finalActiveDay = 
-				if(activeDayCheck > active){
-					Future{	updateActive(uid, activeDayCheck) }
-					activeDayCheck
-				}
-				else active
-				log.debug("ProgrammeForUser result {}", Tuple2(c.map(e => e.copy(active = finalActiveDay)), p))
-				replyTo ! Tuple2(c.map(e => e.copy(active = finalActiveDay)), p)
+				val activeDayCheck = activeDay(dateStarted, active, uid)
+
+				log.debug("ProgrammeForUser result {}", Tuple2(c.map(e => e.copy(active = activeDayCheck)), p))
+				replyTo ! Tuple2(c.map(e => e.copy(active = activeDayCheck)), p)
 			}
 
 		case DailyProgrammeForUser(uid) => 
@@ -81,7 +76,11 @@ class ApplicationActor extends Actor with AppConfig
 		case CompletedDaysForUser(uid) =>
 			val replyTo = sender
 			Future { completedByUid(uid) } onComplete {
-				case Success(x) => replyTo ! x
+				case Success(c) => 
+					val active = c.get.active
+					val dateStarted = c.get.dateStarted
+					val activeDayCheck = activeDay(dateStarted, active, uid)
+					replyTo ! c.map(e => e.copy(active = activeDayCheck))
 				case Failure(ex) =>
 					log.error("Failed to GetCompletedDays for user {}, reason {}", uid, ex)
 					replyTo ! None
@@ -144,13 +143,16 @@ class ApplicationActor extends Actor with AppConfig
 		case (None, None) => None
 	}
 
-	private def activeDay(dateStarted: Option[Timestamp], active: Int):Int = dateStarted match {
+	private def activeDay(dateStarted: Option[Timestamp], active: Int, uid: Long):Int = dateStarted match {
 		case Some(ds) =>
+			log.debug("DateStarted {}, isToday {}, daysDiff {}", dateStarted.map(e => timestamp2mdTime(e)), isToday(ds), daysDiff(ds))
 			val result = 
 				if(isToday(ds)) active
 				else daysDiff(ds) match {
 					case x if x > 28 => 0
-					case x if x <= 28 => x	
+					case x if x <= 28 => 
+						if(x > active) Future{ updateActive(uid, x) }
+						x	
 				} 
 			result			
 		case None => 1
