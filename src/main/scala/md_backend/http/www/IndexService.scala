@@ -22,6 +22,6 @@ import org.mojdan.md_backend.util._
 
 trait IndexService extends HttpService with AppConfig {
 	def index = (context: ActorContext) => {
-		complete(StatusCodes.NotImplemented)
+		complete("Hello :)")
 	}
 }
