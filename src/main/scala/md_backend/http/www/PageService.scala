@@ -21,7 +21,7 @@ import org.mojdan.md_backend.util._
 
 trait PageService extends HttpService with AppConfig {
 	def page = (pageId: String, context: ActorContext) => {
-		complete(StatusCodes.NotImplemented)
+		complete("A page :)")
 	}
 
 	def editPage = (pageId: String, context: ActorContext) => {
