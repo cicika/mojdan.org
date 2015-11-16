@@ -20,7 +20,6 @@ class ApplicationActor extends Actor with AppConfig
 																		 with ApplicationStorage
 																		 with TimeUtils {
 
-
 	private val log = Logging(context.system, this)
 	import org.mojdan.md_backend.model.Tables
 	//override implicit val timeout = Timeout(5 seconds)
