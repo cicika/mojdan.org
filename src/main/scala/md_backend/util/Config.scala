@@ -13,10 +13,10 @@ import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import Q.interpolation
 
 sealed trait Config {
-	val config = ConfigFactory.load()	
+	val config = ConfigFactory.load()
 }
-trait AppConfig extends Config{		
 
+trait AppConfig extends Config {
 	val hostname = config.getString("mail.hostname")
 	val username = config.getString("mail.username")
 	val password = config.getString("mail.password")
@@ -30,8 +30,7 @@ trait AppConfig extends Config{
 	val apiLogger = LoggerFactory.getLogger(classOf[AppConfig])
 }
 
-trait DBConfig extends Config{
-	
+trait DBConfig extends Config {
 	val dbUrl = "jdbc:postgresql://localhost/%s" format config.getString("db.database")
 	val dbDriver = "org.postgresql.Driver"
 	val dbUser = config.getString("db.username")

@@ -20,16 +20,15 @@ class ApplicationActor extends Actor with AppConfig
 																		 with ApplicationStorage
 																		 with TimeUtils {
 
-																 	
+
 	private val log = Logging(context.system, this)
-	import org.mojdan.md_backend.model.Tables	
+	import org.mojdan.md_backend.model.Tables
 	//override implicit val timeout = Timeout(5 seconds)
 	def receive = {
-
-		case StartProgramme(uid) => 
+		case StartProgramme(uid) =>
 			val replyTo = sender
-			Future{ insertCompleted(CompletedRow(uid, None, 1, Some(new Timestamp(now)))) }
-			Future{ programmeByDay(List(1)) } onComplete {
+			Future { insertCompleted(CompletedRow(uid, None, 1, Some(new Timestamp(now)))) }
+			Future { programmeByDay(List(1)) } onComplete {
 				case Success(p) => replyTo ! p
 				case Failure(ex) =>
 					log.error("StartProgramme failed for user {} uid, reason {}", uid, ex)
@@ -51,11 +50,10 @@ class ApplicationActor extends Actor with AppConfig
 			//TODO archive current progress (need new db table !!)
 		case ProgrammeForUser(uid) =>
 			val replyTo = sender
-			for{
+			for {
 				c <- Future { completedByUid(uid) }
 				p <- Future { programmeByDay(List(), true) }
 			} yield {
-			
 				val active = c.get.active
 				val dateStarted = c.get.dateStarted
 				val activeDayCheck = activeDay(dateStarted, active, uid)
@@ -64,10 +62,10 @@ class ApplicationActor extends Actor with AppConfig
 				replyTo ! Tuple2(c.map(e => e.copy(active = activeDayCheck)), p)
 			}
 
-		case DailyProgrammeForUser(uid) => 
+		case DailyProgrammeForUser(uid) =>
 			val replyTo = sender
 			for {
-				c <- Future{ completedByUid(uid) }
+				c <- Future { completedByUid(uid) }
 				p <- Future { programmeByDay(List(c.get.active))}
 			} yield {
 				replyTo ! p
@@ -76,7 +74,7 @@ class ApplicationActor extends Actor with AppConfig
 		case CompletedDaysForUser(uid) =>
 			val replyTo = sender
 			Future { completedByUid(uid) } onComplete {
-				case Success(c) => 
+				case Success(c) =>
 					val active = c.get.active
 					val dateStarted = c.get.dateStarted
 					val activeDayCheck = activeDay(dateStarted, active, uid)
@@ -86,28 +84,28 @@ class ApplicationActor extends Actor with AppConfig
 					replyTo ! None
 			}
 
-		case StartMood(uid, startMood) => 
+		case StartMood(uid, startMood) =>
 			val replyTo = sender
 			for {
 				c <- Future { completedByUid(uid) }
 				aid <- Future { insertActivityRow(
 												ActivityDiaryRow(-1, uid, c.get.active, None, Some(startMood), None, None, None, None, None)) }
-			} yield { 
-				replyTo ! aid 
-			}			
+			} yield {
+				replyTo ! aid
+			}
 
-		case msg: ActivityDiaryRow => 
+		case msg: ActivityDiaryRow =>
 			val replyTo = sender
 			for {
 				c <- Future { completedByUid(msg.uid) }
 				o <- Future { activityRowByUserAndDay(msg.uid, c.get.active) }
-				aid <- Future{ insertActivityRow(msg.copy(startMood = o.get._2).copy(day = c.get.active)) }
+				aid <- Future { insertActivityRow(msg.copy(startMood = o.get._2).copy(day = c.get.active)) }
 			} yield {
 				val r = (o.get._1, aid, c.get.completed, c.get.active)
 
 				replyTo ! r._2
 
-				Future{
+				Future {
 					deleteActivityRow(r._1)
 					updateActive(msg.uid, r._4 + 1)
 					updateCompleted(msg.uid, newCompletedList(r._3, msg.activity, r._4))
@@ -115,15 +113,15 @@ class ApplicationActor extends Actor with AppConfig
 			}
 
 		case msg: MoodScalesRow =>
-			val replyTo = sender 
-			Future{ insertMoodScales(msg) } onComplete { 
+			val replyTo = sender
+			Future { insertMoodScales(msg) } onComplete {
 				case Success(x) => replyTo ! Some(x)
 				case Failure(ex) =>
 					log.error("Failed to save MoodScalesRow, user {} reason {}", msg.uid, ex)
 					replyTo ! None
 			}
 
-		case MoodScalesForUser(uid) => 
+		case MoodScalesForUser(uid) =>
 			val replyTo = sender
 			for {
 				c <- Future { completedByUid(uid) }
@@ -146,24 +144,24 @@ class ApplicationActor extends Actor with AppConfig
 	private def activeDay(dateStarted: Option[Timestamp], active: Int, uid: Long):Int = dateStarted match {
 		case Some(ds) =>
 			log.debug("DateStarted {}, isToday {}, daysDiff {}", dateStarted.map(e => timestamp2mdTime(e)), isToday(ds), daysDiff(ds))
-			val result = 
+			val result =
 				if(isToday(ds)) active
 				else daysDiff(ds) match {
 					case x if x > 28 => 0
-					case x if x <= 28 => 
-						if(x > active) Future{ updateActive(uid, x) }
-						x	
-				} 
-			result			
+					case x if x <= 28 =>
+						if(x > active) Future { updateActive(uid, x) }
+						x
+				}
+			result
 		case None => 1
 	}
 
 	private def records(active: Int) = active match {
-			case x if x < 8 => 0
-			case x if (x >= 8 && x < 15) => 7
-			case x if (x >= 15 && x < 22) => 14
-			case x if (x >= 22 && x < 28) => 21
-			case x if x >= 28 => 28
-			case _ => 0
-		}
+		case x if x < 8 => 0
+		case x if (x >= 8 && x < 15) => 7
+		case x if (x >= 15 && x < 22) => 14
+		case x if (x >= 22 && x < 28) => 21
+		case x if x >= 28 => 28
+		case _ => 0
+	}
 }

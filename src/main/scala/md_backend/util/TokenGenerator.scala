@@ -18,7 +18,7 @@ trait TokenGenerator {
   def generateOtp: String = generateToken(OTP_LENGTH)
   
   def generateToken(tokenLength: Int): String =
-    if(tokenLength == 0) "" else TOKEN_CHARS(secureRandom.nextInt(TOKEN_CHARS.length())) + 
-     generateToken(tokenLength - 1)
-  
+    if(tokenLength == 0) "" 
+    else TOKEN_CHARS(secureRandom.nextInt(TOKEN_CHARS.length())) + 
+         generateToken(tokenLength - 1)  
 }

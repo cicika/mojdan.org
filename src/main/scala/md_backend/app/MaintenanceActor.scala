@@ -31,5 +31,4 @@ class MaintenanceActor extends Actor with AppConfig
 		context.system.scheduler.schedule(240 seconds, 3600 seconds, self, InvalidateAuthTokens())
 		context.system.scheduler.schedule(360 seconds, 7200 seconds, self, InvalidateRefreshTokens())
 	}
-
 }

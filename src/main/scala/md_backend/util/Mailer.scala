@@ -8,7 +8,7 @@ trait Mailer extends AppConfig {
 
 	val RESET_PW_SUBJECT = config.getString("mail.subject.reset-pw")
 
-	def sendEmail(to: Tuple2[String, String], from: String, 
+	def sendEmail(to: Tuple2[String, String], from: String,
 								subject: String, htmlContent: String, textContent: String) = {
 
 		val email = new HtmlEmail()
@@ -19,7 +19,6 @@ trait Mailer extends AppConfig {
 		email.setSubject(subject)
 		email.setHtmlMsg(htmlContent)
 		email.setTextMsg(textContent)
-		//email.setAuthentication(username, password)
 		email.send()
 	}
 }

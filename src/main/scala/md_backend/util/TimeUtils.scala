@@ -33,7 +33,7 @@ trait TimeUtils {
 		calendar.set(Calendar.MILLISECOND, timestamp.getTime().toInt)
 		calendar.roll(Calendar.DAY_OF_WEEK, delta)
 		calendar.get(Calendar.DAY_OF_WEEK)
-	}	
+	}
 
 	def daysDiff(date: MDTime) = {
 		val today = timestamp2mdTime(new Timestamp(now))

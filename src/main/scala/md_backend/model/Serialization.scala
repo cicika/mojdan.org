@@ -10,14 +10,14 @@ import scala.util.{Try, Success, Failure}
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-object TBJsonProtocol extends DefaultJsonProtocol with Tables{
+object TBJsonProtocol extends DefaultJsonProtocol with Tables {
 
 	//implicit val login = jsonFormat2(Login)
 	//implicit val register = jsonFormat4(Register)
 	implicit val loginResponse = jsonFormat2(LoginResponse)
   implicit val resetPassword = jsonFormat2(ResetPassword)
 
-  implicit object AccountJsonProtcol extends RootJsonFormat[Account]{
+  implicit object AccountJsonProtcol extends RootJsonFormat[Account] {
     def write(a: Account) = JsObject(
       "uid" -> JsNumber(a.uid),
       "username" -> JsString(a.username.getOrElse("")),
@@ -38,25 +38,27 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
     }
   }
 
-	implicit object LoginJsonFormat extends RootJsonFormat[Login]{
+	implicit object LoginJsonFormat extends RootJsonFormat[Login] {
     def write(t: Login) = JsObject(
       "username" -> JsString(t.username),
       "password" -> JsString(t.password)
     )
-    def read(value: JsValue) = 
+
+    def read(value: JsValue) =
       value.asJsObject.fields match {
         case t: Map[String, JsValue] => Login(t("username").convertTo[String], t("password").convertTo[String])
         case _ => throw new DeserializationException("Login extepected")
       }
-  } 
+  }
 
-  implicit object RegisterJsonFormat extends RootJsonFormat[Register]{
+  implicit object RegisterJsonFormat extends RootJsonFormat[Register] {
     def write(r: Register) = JsObject(
       "username" -> JsString(r.username),
       "password" -> JsString(r.password),
       "email" -> JsString(r.email),
       "connector" -> JsString(r.connector.getOrElse(""))
-      )
+    )
+
     def read(value: JsValue) = value.asJsObject.fields match {
       case r: Map[String, JsValue] => Register(r("username").convertTo[String], r("password").convertTo[String],
                                                r("email").convertTo[String], r.get("connector").map(e => e.convertTo[String]))
@@ -71,11 +73,11 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
       "email" -> JsString(u.email),
       "firstname" -> JsString(u.firstname.getOrElse("")),
       "lastname" -> JsString(u.lastname.getOrElse(""))
-      )
+    )
 
     def read(value: JsValue) = value.asJsObject.fields match {
       case u: Map[String, JsValue] =>
-        UserRow(u("uid").convertTo[Int], u("email").convertTo[String], u("username").convertTo[String], "", 
+        UserRow(u("uid").convertTo[Int], u("email").convertTo[String], u("username").convertTo[String], "",
           u.get("firstname").map(e => e.convertTo[String]), u.get("lastname").map(e => e.convertTo[String]))
       case _ => throw new DeserializationException("UserRow expected")
     }
@@ -94,7 +96,7 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
 
     def read(value: JsValue) = value.asJsObject.fields match {
       case p: Map[String, JsValue] =>
-        ProgrammeRow(p("day").convertTo[Int], p.get("image").map(e => e.convertTo[String]), 
+        ProgrammeRow(p("day").convertTo[Int], p.get("image").map(e => e.convertTo[String]),
                      p.get("sentence").map(e => e.convertTo[String]), p.get("activity_s").map(e => e.convertTo[String]),
                      p.get("activity_l").map(e => e.convertTo[String]),
                      p.get("activity_s_b").map(e => e.convertTo[String]),
@@ -103,7 +105,7 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
     }
   }
 
-  implicit object CompletedRowJsonProtocol extends RootJsonFormat[CompletedRow]{
+  implicit object CompletedRowJsonProtocol extends RootJsonFormat[CompletedRow] {
     def write(c: CompletedRow) = JsObject(
       "completed" -> JsArray(c.completed.map(e => e.split(",").map(a => JsNumber(a.toInt)).toList).getOrElse(List())),
       "active" -> JsNumber(c.active)
@@ -116,8 +118,8 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
       case _ => throw new DeserializationException("Completed expected")
     }
   }
- 
-  implicit object ActivityDiaryRowJsonProtocol extends RootJsonFormat[ActivityDiaryRow]{
+
+  implicit object ActivityDiaryRowJsonProtocol extends RootJsonFormat[ActivityDiaryRow] {
     def write(a: ActivityDiaryRow) = JsObject(
       "aid" -> JsNumber(a.aid),
       "uid" -> JsNumber(a.uid),
@@ -134,33 +136,33 @@ object TBJsonProtocol extends DefaultJsonProtocol with Tables{
     def read(value: JsValue) = value.asJsObject.fields match {
       case t: Map[String, JsValue] =>
         ActivityDiaryRow(t.get("aid").map(e => e.convertTo[Long]).getOrElse(-1l), t.get("uid").map(e => e.convertTo[Long]).getOrElse(-1l), t("day").convertTo[Int],
-          t.get("activity").map(e => e.convertTo[String]), t.get("start_mood").map(e => e.convertTo[Int]), 
-          t.get("exp_mood").map(e => e.convertTo[Int]), t.get("ach_mood").map(e => e.convertTo[Int]), 
+          t.get("activity").map(e => e.convertTo[String]), t.get("start_mood").map(e => e.convertTo[Int]),
+          t.get("exp_mood").map(e => e.convertTo[Int]), t.get("ach_mood").map(e => e.convertTo[Int]),
           t.get("satisfaction").map(e => e.convertTo[Int]), t.get("achievement").map(e => e.convertTo[Int]),
           t.get("note").map(e => e.convertTo[String]))
       case _ => throw new DeserializationException("ActivityDiaryRow expected")
     }
   }
+
   implicit object MoodScalesRowJsonProtocol extends RootJsonFormat[MoodScalesRow] {
     def write(m: MoodScalesRow) = JsObject(
-        "mid" -> JsNumber(m.mid),
-        "uid" -> JsNumber(m.uid),
-        "day" -> JsNumber(m.day),
-        "pos_contacts" -> JsNumber(m.posContacts.getOrElse(0)),
-        "neg_contacts" -> JsNumber(m.negContacts.getOrElse(0)),
-        "pos_activities" -> JsNumber(m.posActivities.getOrElse(0)),
-        "neg_activities" -> JsNumber(m.negActivities.getOrElse(0)),
-        "pos_thoughts" -> JsNumber(m.posThoughts.getOrElse(0)),
-        "neg_thoughts" -> JsNumber(m.negThoughts.getOrElse(0))
-      )
+      "mid" -> JsNumber(m.mid),
+      "uid" -> JsNumber(m.uid),
+      "day" -> JsNumber(m.day),
+      "pos_contacts" -> JsNumber(m.posContacts.getOrElse(0)),
+      "neg_contacts" -> JsNumber(m.negContacts.getOrElse(0)),
+      "pos_activities" -> JsNumber(m.posActivities.getOrElse(0)),
+      "neg_activities" -> JsNumber(m.negActivities.getOrElse(0)),
+      "pos_thoughts" -> JsNumber(m.posThoughts.getOrElse(0)),
+      "neg_thoughts" -> JsNumber(m.negThoughts.getOrElse(0))
+    )
 
     def read(value: JsValue) = value.asJsObject.fields match {
-      case m: Map[String, JsValue] => 
+      case m: Map[String, JsValue] =>
         MoodScalesRow(m.get("mid").map(e => e.convertTo[Long]).getOrElse(-1l), m.get("uid").map(e => e.convertTo[Long]).getOrElse(-1l), m("day").convertTo[Int], m.get("pos_contacts").map(e => e.convertTo[Int]), m.get("neg_contacts").map(e => e.convertTo[Int]),
                       m.get("pos_activities").map(e => e.convertTo[Int]), m.get("neg_activities").map(e => e.convertTo[Int]),
                       m.get("pos_thoughts").map(e => e.convertTo[Int]), m.get("neg_thoughts").map(e => e.convertTo[Int]))
-      case _ => throw new DeserializationException("MoodScales expected") 
+      case _ => throw new DeserializationException("MoodScales expected")
     }
   }
-
 }

@@ -11,16 +11,16 @@ case class Account(uid: Long, username: Option[String], password: Option[String]
                    firstname: Option[String], lastname: Option[String])
 
 object Account {
-  def asMap(acc: Account):Map[String, Any] = 
-    Map("uid" -> Some(acc.uid),
-        "username" -> acc.username,
-        "password" -> acc.password,
-        "connector" -> acc.connector,
-        "email" -> acc.email,
-        "firstname" -> acc.firstname,
-        "lastname" -> acc.lastname).
-        filter(e => e._2 != None).
-        map(e => (e._1 -> e._2.get))
+  def asMap(acc: Account):Map[String, Any] =
+  Map("uid" -> Some(acc.uid),
+    "username" -> acc.username,
+    "password" -> acc.password,
+    "connector" -> acc.connector,
+    "email" -> acc.email,
+    "firstname" -> acc.firstname,
+    "lastname" -> acc.lastname).
+  filter(e => e._2 != None).
+  map(e => (e._1 -> e._2.get))
 }
 
 case class ForgotPassword(email: String)
@@ -38,7 +38,7 @@ case class ProgrammeForUser(uid: Long)
 case class DailyProgrammeForUser(uid: Long)
 case class CompletedDaysForUser(uid: Long)
 
-//mood scales 
+//mood scales
 case class StartMood(uid: Long, startMood: Int)
 case class MoodScalesForUser(uid: Long)
 case class ActivityHistoryForUser(uid: Long)

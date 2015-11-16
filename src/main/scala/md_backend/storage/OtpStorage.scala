@@ -9,19 +9,18 @@ import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import Q.interpolation
 
 trait OtpStorage extends DBConfig with TokenGenerator {
-
-	def insertOtp(otp: OtpRow) = db.withSession{ implicit session =>
+	def insertOtp(otp: OtpRow) = db.withSession { implicit session =>
 		Otp += otp
 		dbLogger.debug("insertOtp %s" format otp.toString)
 		Done()
 	}
 
-	def deleteOtp(timestamp: Long) = db.withSession{ implicit session =>
+	def deleteOtp(timestamp: Long) = db.withSession { implicit session =>
 		sqlu"delete from otps where $timestamp - created >= $otpExpiry"
 		dbLogger.info("deleteOtp older than %d" format timestamp)
 	}
 
-	def deleteOtp(email: String) = db.withSession{ implicit session =>
+	def deleteOtp(email: String) = db.withSession { implicit session =>
 		sqlu"delete from otps where email = $email".first
 		dbLogger.info("deleteOtp %s" format email)
 	}
@@ -31,13 +30,11 @@ trait OtpStorage extends DBConfig with TokenGenerator {
 			o <- Otp if o.otp === otp
 		} yield o.email
 
-		val res = db.withSession{session =>
+		val res = db.withSession { session =>
 			q.list()(session)
 		}.headOption
 
 		dbLogger.debug("emailForOtp %s, result %s" format(otp, res.toString))
-		
 		res
 	}
-
 }

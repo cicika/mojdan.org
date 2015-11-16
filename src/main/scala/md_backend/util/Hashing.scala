@@ -5,8 +5,7 @@ import javax.crypto.Mac
 
 import org.parboiled.common.Base64
 
-trait Hashing extends DBConfig{
-
+trait Hashing extends DBConfig {
 	def hash(input: String) = {
 		val key = new SecretKeySpec(cryptoKey.getBytes, "HmacSHA1")
 		val mac = Mac.getInstance("HmacSHA1")

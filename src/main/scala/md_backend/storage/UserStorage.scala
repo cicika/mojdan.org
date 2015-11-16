@@ -10,9 +10,7 @@ import Q.interpolation
 
 import scala.annotation.tailrec
 
-
-trait UserStorage extends DBConfig with Hashing{
-
+trait UserStorage extends DBConfig with Hashing {
 	import org.mojdan.md_backend.model.Tables
 
 	def login(l: Login):Option[Tuple2[Long, Option[String]]] = {
@@ -28,9 +26,9 @@ trait UserStorage extends DBConfig with Hashing{
 		result.headOption
 	}
 
-	def register(accessToken: String, regData: Register):Long = db.withSession{ implicit session =>
+	def register(accessToken: String, regData: Register):Long = db.withSession { implicit session =>
 		val userId = (User returning User.map(_.uid)) += 
-		UserRow(-1, regData.email, regData.username, hash(regData.password))
+										UserRow(-1, regData.email, regData.username, hash(regData.password))
 		//Connectors += ConnectorsRow(userId, Some(regData.connector), None)
 		Auth += AuthRow(userId, Some(accessToken))
 		userId
@@ -41,7 +39,7 @@ trait UserStorage extends DBConfig with Hashing{
         	t <- Auth if (t.token === accessToken)
     } yield t.uid
 
-    val result = db.withSession{session =>
+    val result = db.withSession { session =>
       q.list()(session)	
     }	
     result.headOption.map(e => e.toString)
@@ -63,7 +61,7 @@ trait UserStorage extends DBConfig with Hashing{
 			u <- User if (u.email === email)
 		} yield (u.uid, u.email, u.username, u.firstname, u.lastname)
 
-		val res = db.withSession{session =>
+		val res = db.withSession { session =>
 			q.list()(session)
 		}
 		res.headOption.map(u => UserRow(u._1, u._2, u._3, "", u._4, u._5))
@@ -72,19 +70,11 @@ trait UserStorage extends DBConfig with Hashing{
 	def update(data: Map[String, Any]) = {
 		import scala.slick.driver.JdbcDriver.backend.Database
 		import Database.dynamicSession
-
+		//TODO
 		val query = "UPDATE user %s SET %s WHERE uid=%d" format ( 
 			fields(data.tail.map(e => (e._1.toString, e._2.toString)), ""), 
 			values(data.tail.map(e => (e._1.toString, e._2.toString)), ""), data("uid").asInstanceOf[Long])
 
-		//val q = withDynSession{
-		//	Q.update(query).execute
-		//}
-		/*val res = q.first() match {
-			case Some(x) if x == 0 => -1l
-			case Some(x) if x == 1 => data("uid").asInstanceOf[Long]
-			case None => -1l
-		}*/
 		data("uid").asInstanceOf[Long]
 	}
 
@@ -93,7 +83,7 @@ trait UserStorage extends DBConfig with Hashing{
 			u <- User if u.email === email
 		} yield u.password
 
-		val res = db.withSession {implicit session =>
+		val res = db.withSession { implicit session =>
 			val affectedRows = q.update(hash(newPassword))
 			q.updateInvoker
 			q.updateStatement
@@ -108,7 +98,7 @@ trait UserStorage extends DBConfig with Hashing{
 			u <- User 
 		} yield (u.uid, u.password)
 
-		val uids = db.withSession{ session =>
+		val uids = db.withSession { session =>
 			q.list()(session)
 		}.map(e => (e._1, hash(e._2)))
 
@@ -137,6 +127,5 @@ trait UserStorage extends DBConfig with Hashing{
 		case x if x == 0 => output.dropRight(2) + ")"
 		case x if x == 1 => values(data.tail, "('" + data.head._2 + "', ")
 		case x => values(data.tail, output + "'" + data.head._2 + "', ")
-	}
-	
+	}	
 }

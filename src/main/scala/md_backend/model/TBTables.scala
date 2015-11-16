@@ -3,26 +3,26 @@ package org.mojdan.md_backend.model
 
 /** Slick data model trait for extension, choice of backend or usage in the cake pattern. (Make sure to initialize this late.) */
 trait Tables {
-  
+
   val profile = scala.slick.driver.PostgresDriver
   import profile.simple._
   import scala.slick.model.ForeignKeyAction
   // NOTE: GetResult mappers for plain SQL are only generated for tables where Slick knows how to map the types of all columns.
   import scala.slick.jdbc.{GetResult => GR}
-  
+
   /** DDL for all tables. Call .create to execute. */
   lazy val ddl = ActivityDiary.ddl ++ Auth.ddl ++ Connectors.ddl ++ MoodScales.ddl ++ Programme.ddl ++ ScheduledTasks.ddl ++ User.ddl
-  
+
   /** Entity class storing rows of table ActivityDiary
    *  @param aid Database column aid AutoInc, PrimaryKey
-   *  @param uid Database column uid 
-   *  @param day Database column day 
-   *  @param activity Database column activity 
+   *  @param uid Database column uid
+   *  @param day Database column day
+   *  @param activity Database column activity
    *  @param startMood Database column start_mood
-   *  @param expMood Database column exp_mood 
-   *  @param achMood Database column ach_mood 
-   *  @param satisfaction Database column satisfaction 
-   *  @param achievement Database column achievement 
+   *  @param expMood Database column exp_mood
+   *  @param achMood Database column ach_mood
+   *  @param satisfaction Database column satisfaction
+   *  @param achievement Database column achievement
    *  @param note Database column note  */
   case class ActivityDiaryRow(aid: Long, uid: Long, day: Int, activity: Option[String], startMood: Option[Int], expMood: Option[Int], achMood: Option[Int], satisfaction: Option[Int], achievement: Option[Int], note: Option[String])
   /** GetResult implicit for fetching ActivityDiaryRow objects using plain SQL queries */
@@ -35,7 +35,7 @@ trait Tables {
     def * = (aid, uid, day, activity, startMood, expMood, achMood, satisfaction, achievement, note) <> (ActivityDiaryRow.tupled, ActivityDiaryRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (aid.?, uid.?, day.?, activity, startMood, expMood, achMood, satisfaction, achievement, note).shaped.<>({r=>import r._; _1.map(_=> ActivityDiaryRow.tupled((_1.get, _2.get, _3.get, _4, _5, _6, _7, _8, _9, _10)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column aid AutoInc, PrimaryKey */
     val aid: Column[Long] = column[Long]("aid", O.AutoInc, O.PrimaryKey)
     /** Database column uid  */
@@ -59,9 +59,9 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table ActivityDiary */
   lazy val ActivityDiary = new TableQuery(tag => new ActivityDiary(tag))
-  
+
   /** Entity class storing rows of table Auth
-   *  @param uid Database column uid 
+   *  @param uid Database column uid
    *  @param token Database column token  */
   case class AuthRow(uid: Long, token: Option[String])
   /** GetResult implicit for fetching AuthRow objects using plain SQL queries */
@@ -74,21 +74,21 @@ trait Tables {
     def * = (uid, token) <> (AuthRow.tupled, AuthRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (uid.?, token).shaped.<>({r=>import r._; _1.map(_=> AuthRow.tupled((_1.get, _2)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column uid  */
     val uid: Column[Long] = column[Long]("uid")
     /** Database column token  */
     val token: Column[Option[String]] = column[Option[String]]("token")
-    
+
     /** Uniqueness Index over (uid) (database name CONSTRAINT_INDEX_2) */
     val index1 = index("CONSTRAINT_INDEX_2", uid, unique=true)
   }
   /** Collection-like TableQuery object for table Auth */
   lazy val Auth = new TableQuery(tag => new Auth(tag))
-  
+
   /** Entity class storing rows of table Connectors
-   *  @param uid Database column uid 
-   *  @param connector Database column connector 
+   *  @param uid Database column uid
+   *  @param connector Database column connector
    *  @param cType Database column c_type  */
   case class ConnectorsRow(uid: Long, connector: Option[String], cType: Option[Int])
   /** GetResult implicit for fetching ConnectorsRow objects using plain SQL queries */
@@ -101,28 +101,28 @@ trait Tables {
     def * = (uid, connector, cType) <> (ConnectorsRow.tupled, ConnectorsRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (uid.?, connector, cType).shaped.<>({r=>import r._; _1.map(_=> ConnectorsRow.tupled((_1.get, _2, _3)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column uid  */
     val uid: Column[Long] = column[Long]("uid")
     /** Database column connector  */
     val connector: Column[Option[String]] = column[Option[String]]("connector")
     /** Database column c_type  */
     val cType: Column[Option[Int]] = column[Option[Int]]("c_type")
-    
+
     /** Uniqueness Index over (uid) (database name CONSTRAINT_INDEX_D) */
     val index1 = index("CONSTRAINT_INDEX_D", uid, unique=true)
   }
   /** Collection-like TableQuery object for table Connectors */
   lazy val Connectors = new TableQuery(tag => new Connectors(tag))
-  
+
   /** Entity class storing rows of table MoodScales
    *  @param mid Database column mid AutoInc, PrimaryKey
-   *  @param uid Database column uid 
-   *  @param posContacts Database column pos_contacts 
-   *  @param negContacts Database column neg_contacts 
-   *  @param posActivities Database column pos_activities 
-   *  @param negActivities Database column neg_activities 
-   *  @param posThoughts Database column pos_thoughts 
+   *  @param uid Database column uid
+   *  @param posContacts Database column pos_contacts
+   *  @param negContacts Database column neg_contacts
+   *  @param posActivities Database column pos_activities
+   *  @param negActivities Database column neg_activities
+   *  @param posThoughts Database column pos_thoughts
    *  @param negThoughts Database column neg_thoughts  */
   case class MoodScalesRow(mid: Long, uid: Long, day: Int, posContacts: Option[Int], negContacts: Option[Int], posActivities: Option[Int], negActivities: Option[Int], posThoughts: Option[Int], negThoughts: Option[Int])
   /** GetResult implicit for fetching MoodScalesRow objects using plain SQL queries */
@@ -135,7 +135,7 @@ trait Tables {
     def * = (mid, uid, day, posContacts, negContacts, posActivities, negActivities, posThoughts, negThoughts) <> (MoodScalesRow.tupled, MoodScalesRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (mid.?, uid.?, day, posContacts, negContacts, posActivities, negActivities, posThoughts, negThoughts).shaped.<>({r=>import r._; _1.map(_=> MoodScalesRow.tupled((_1.get, _2.get, _3, _4, _5, _6, _7, _8, _9)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column mid AutoInc, PrimaryKey */
     val mid: Column[Long] = column[Long]("mid", O.AutoInc, O.PrimaryKey)
     /** Database column uid  */
@@ -157,14 +157,14 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table MoodScales */
   lazy val MoodScales = new TableQuery(tag => new MoodScales(tag))
-  
+
   /** Entity class storing rows of table Programme
-   *  @param day Database column day 
-   *  @param image Database column image 
-   *  @param sentence Database column sentence 
-   *  @param activityS Database column activity_s 
-   *  @param activityL Database column activity_l 
-   *  @param activitySB Database column activity_s_b 
+   *  @param day Database column day
+   *  @param image Database column image
+   *  @param sentence Database column sentence
+   *  @param activityS Database column activity_s
+   *  @param activityL Database column activity_l
+   *  @param activitySB Database column activity_s_b
    *  @param activityLB Database column activity_l_b  */
   case class ProgrammeRow(day: Int, image: Option[String], sentence: Option[String], activityS: Option[String], activityL: Option[String], activitySB: Option[String], activityLB: Option[String])
   /** GetResult implicit for fetching ProgrammeRow objects using plain SQL queries */
@@ -177,7 +177,7 @@ trait Tables {
     def * = (day, image, sentence, activityS, activityL, activitySB, activityLB) <> (ProgrammeRow.tupled, ProgrammeRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (day.?, image, sentence, activityS, activityL, activitySB, activityLB).shaped.<>({r=>import r._; _1.map(_=> ProgrammeRow.tupled((_1.get, _2, _3, _4, _5, _6, _7)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column day  */
     val day: Column[Int] = column[Int]("day")
     /** Database column image  */
@@ -192,18 +192,18 @@ trait Tables {
     val activitySB: Column[Option[String]] = column[Option[String]]("activity_s_b")
     /** Database column activity_l_b  */
     val activityLB: Column[Option[String]] = column[Option[String]]("activity_l_b")
-    
+
     /** Uniqueness Index over (day) (database name CONSTRAINT_INDEX_C) */
     val index1 = index("CONSTRAINT_INDEX_C", day, unique=true)
   }
   /** Collection-like TableQuery object for table Programme */
   lazy val Programme = new TableQuery(tag => new Programme(tag))
-  
+
   /** Entity class storing rows of table ScheduledTasks
    *  @param tid Database column tid AutoInc, PrimaryKey
-   *  @param uid Database column uid 
-   *  @param tType Database column t_type 
-   *  @param day Database column day 
+   *  @param uid Database column uid
+   *  @param tType Database column t_type
+   *  @param day Database column day
    *  @param time Database column time  */
   case class ScheduledTasksRow(tid: Long, uid: Long, tType: Int, day: Option[Int], time: Option[Int])
   /** GetResult implicit for fetching ScheduledTasksRow objects using plain SQL queries */
@@ -216,7 +216,7 @@ trait Tables {
     def * = (tid, uid, tType, day, time) <> (ScheduledTasksRow.tupled, ScheduledTasksRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (tid.?, uid.?, tType.?, day, time).shaped.<>({r=>import r._; _1.map(_=> ScheduledTasksRow.tupled((_1.get, _2.get, _3.get, _4, _5)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column tid AutoInc, PrimaryKey */
     val tid: Column[Long] = column[Long]("tid", O.AutoInc, O.PrimaryKey)
     /** Database column uid  */
@@ -230,13 +230,13 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table ScheduledTasks */
   lazy val ScheduledTasks = new TableQuery(tag => new ScheduledTasks(tag))
-  
+
   /** Entity class storing rows of table User
    *  @param uid Database column uid AutoInc, PrimaryKey
-   *  @param email Database column email 
-   *  @param username Database column username 
-   *  @param password Database column password 
-   *  @param firstname Database column firstname 
+   *  @param email Database column email
+   *  @param username Database column username
+   *  @param password Database column password
+   *  @param firstname Database column firstname
    *  @param lastname Database column lastname  */
   case class UserRow(uid: Long, email: String, username: String, password: String, firstname: Option[String] = None, lastname: Option[String] = None)
   /** GetResult implicit for fetching UserRow objects using plain SQL queries */
@@ -249,7 +249,7 @@ trait Tables {
     def * = (uid, email, username, password, firstname, lastname) <> (UserRow.tupled, UserRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (uid.?, email.?, username.?, password.?, firstname, lastname).shaped.<>({r=>import r._; _1.map(_=> UserRow.tupled((_1.get, _2.get, _3.get, _4.get, _5, _6)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column uid AutoInc, PrimaryKey */
     val uid: Column[Long] = column[Long]("uid", O.AutoInc, O.PrimaryKey)
     /** Database column email  */
@@ -267,9 +267,9 @@ trait Tables {
   lazy val User = new TableQuery(tag => new User(tag))
 
    /** Entity class storing rows of table Completed
-   *  @param uid Database column uid 
-   *  @param completed Database column completed 
-   *  @param active Database column active 
+   *  @param uid Database column uid
+   *  @param completed Database column completed
+   *  @param active Database column active
    *  @param dateStarted Database column date_started  */
   case class CompletedRow(uid: Long, completed: Option[String], active: Int, dateStarted: Option[java.sql.Timestamp])
   /** GetResult implicit for fetching CompletedRow objects using plain SQL queries */
@@ -282,7 +282,7 @@ trait Tables {
     def * = (uid, completed, active, dateStarted) <> (CompletedRow.tupled, CompletedRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (uid.?, completed, active.?, dateStarted).shaped.<>({r=>import r._; _1.map(_=> CompletedRow.tupled((_1.get, _2, _3.get, _4)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column uid  */
     val uid: Column[Long] = column[Long]("uid")
     /** Database column completed  */
@@ -291,7 +291,7 @@ trait Tables {
     val active: Column[Int] = column[Int]("active")
     /** Database column date_started  */
     val dateStarted: Column[Option[java.sql.Timestamp]] = column[Option[java.sql.Timestamp]]("date_started")
-    
+
     /** Uniqueness Index over (uid) (database name CONSTRAINT_INDEX_A) */
     val index1 = index("CONSTRAINT_INDEX_A", uid, unique=true)
   }
@@ -299,8 +299,8 @@ trait Tables {
   lazy val Completed = new TableQuery(tag => new Completed(tag))
 
   /** Entity class storing rows of table Otp
-   *  @param email Database column email 
-   *  @param otp Database column otp 
+   *  @param email Database column email
+   *  @param otp Database column otp
    *  @param created Database column created  */
   case class OtpRow(email: String, otp: String, created: java.sql.Timestamp)
   /** GetResult implicit for fetching OtpRow objects using plain SQL queries */
@@ -313,18 +313,17 @@ trait Tables {
     def * = (email, otp, created) <> (OtpRow.tupled, OtpRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (email, otp, created).shaped.<>({r=>import r._; _1.map(_=> OtpRow.tupled((_1, _2, _3)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-    
+
     /** Database column email  */
     val email: Column[String] = column[String]("email")
     /** Database column otp  */
     val otp: Column[String] = column[String]("otp")
     /** Database column created  */
     val created: Column[java.sql.Timestamp] = column[java.sql.Timestamp]("created")
-    
+
     /** Uniqueness Index over (email) (database name CONSTRAINT_INDEX_D) */
     val index1 = index("CONSTRAINT_INDEX_D", email, unique=true)
   }
   /** Collection-like TableQuery object for table Otp */
   lazy val Otp = new TableQuery(tag => new Otp(tag))
-
 }

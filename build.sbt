@@ -21,7 +21,7 @@ Twirl.settings
 Revolver.settings
 
 libraryDependencies ++= {
-	Seq(		
+	Seq(
 		"com.typesafe.akka" %% "akka-actor" % "2.1.4" % "compile",
         "com.typesafe.akka" %% "akka-agent" % "2.1.4" % "compile",
         "com.typesafe.akka" %% "akka-remote" % "2.1.4" % "compile",
@@ -53,14 +53,14 @@ libraryDependencies ++= {
 
  ivyXML :=
       <dependencies>
-        <dependency org="org.apache.commons" name="commons-email" rev="1.3.2">  
+        <dependency org="org.apache.commons" name="commons-email" rev="1.3.2">
             <exclude module="slf4j-jdk14"/>
         </dependency>
       </dependencies>
 
 crossPaths := false
 
-publishMavenStyle := true 
+publishMavenStyle := true
 
 resolvers ++= {
 	Seq(

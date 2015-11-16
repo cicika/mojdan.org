@@ -19,12 +19,12 @@ import org.mojdan.md_backend.http._
 import org.mojdan.md_backend.model.TBJsonProtocol._
 import org.mojdan.md_backend.util._
 
-trait ActivityDiaryService extends HttpService with AppConfig{
+trait ActivityDiaryService extends HttpService with AppConfig {
 
 	import org.mojdan.md_backend.model.Tables
-	
+
 	def postStartMood = (user: String, context: ActorContext) => {
-		entity(as[String]){s =>
+		entity(as[String]){ s =>
 			s.asJson.asJsObject.fields.get("start_mood") match {
 				case Some(x) =>
 					onComplete((context.actorFor("/user/application-actor") ? StartMood(user.toLong, x.convertTo[Int])).mapTo[Long]) {
@@ -34,11 +34,12 @@ trait ActivityDiaryService extends HttpService with AppConfig{
 							complete(StatusCodes.InternalServerError)
 					}
 				case None => complete(StatusCodes.BadRequest)
-			}  
+			}
 		}
 	}
+
 	def postActivity = (user: String, context: ActorContext) => {
-		entity(as[String]){s =>
+		entity(as[String]){ s =>
 			apiLogger.debug("POST /activity/complete Extracted entity... {}", s)
 
 			Try(s.asJson.asJsObject.convertTo[ActivityDiaryRow]) match {
@@ -55,16 +56,6 @@ trait ActivityDiaryService extends HttpService with AppConfig{
 	}
 
 	def activityHistory = (user: String) => {
-	 	/*	val q = for{
-	 			ad <- ActivityDiary if (ad.uid === user.toLong)
-	 		} yield (ad.aid, ad.uid, ad.day, ad.activity, ad.startMood, ad.expMood, ad.achMood, 
-	 							ad.satisfaction, ad.achievement, ad.note)
-	 		val result = db.withSession{session =>
-	 			q.list()(session)
-	 		}.map(e => 
-	 			ActivityDiaryRow(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10)).sortBy(e => e.day)
-	 		respondWithStatus(StatusCodes.OK)
-	 		complete(result.toJson.toString)*/
-	 		complete(StatusCodes.NotImplemented)
-	 }  
+ 		complete(StatusCodes.NotImplemented)
+	}
 }
