@@ -14,9 +14,9 @@ import app._
 import spray.can.Http
 
 object Server extends App with Kernel {
- 
+
 	override def main(args: Array[String]) = {
-		
+
 		val userActor = system.actorOf(Props[UserActor].withRouter(RoundRobinRouter(nrOfInstances = 5)), "user-actor")
 		val applicationActor = system.actorOf(Props[ApplicationActor].
 																				  withRouter(RoundRobinRouter(nrOfInstances = 15)), "application-actor")
@@ -27,7 +27,7 @@ object Server extends App with Kernel {
 
 		IO(Http) ! Http.Bind(apiService, interface = hostname, port = 8088)
 		IO(Http) ! Http.Bind(loginService, interface = hostname, port = 8087)
-	}	
+	}
 }
 
 trait Kernel extends Bootable{
@@ -37,5 +37,5 @@ trait Kernel extends Bootable{
 	lazy implicit val system = ActorSystem(systemName, config)
 
 	def startup = {}
-  def shutdown = {} 
+  def shutdown = {}
 }

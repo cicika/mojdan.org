@@ -27,7 +27,7 @@ trait UserStorage extends DBConfig with Hashing {
 	}
 
 	def register(accessToken: String, regData: Register):Long = db.withSession { implicit session =>
-		val userId = (User returning User.map(_.uid)) += 
+		val userId = (User returning User.map(_.uid)) +=
 										UserRow(-1, regData.email, regData.username, hash(regData.password))
 		//Connectors += ConnectorsRow(userId, Some(regData.connector), None)
 		Auth += AuthRow(userId, Some(accessToken))
@@ -40,8 +40,8 @@ trait UserStorage extends DBConfig with Hashing {
     } yield t.uid
 
     val result = db.withSession { session =>
-      q.list()(session)	
-    }	
+      q.list()(session)
+    }
     result.headOption.map(e => e.toString)
 	}
 
@@ -71,8 +71,8 @@ trait UserStorage extends DBConfig with Hashing {
 		import scala.slick.driver.JdbcDriver.backend.Database
 		import Database.dynamicSession
 		//TODO
-		val query = "UPDATE user %s SET %s WHERE uid=%d" format ( 
-			fields(data.tail.map(e => (e._1.toString, e._2.toString)), ""), 
+		val query = "UPDATE user %s SET %s WHERE uid=%d" format (
+			fields(data.tail.map(e => (e._1.toString, e._2.toString)), ""),
 			values(data.tail.map(e => (e._1.toString, e._2.toString)), ""), data("uid").asInstanceOf[Long])
 
 		data("uid").asInstanceOf[Long]
@@ -88,14 +88,14 @@ trait UserStorage extends DBConfig with Hashing {
 			q.updateInvoker
 			q.updateStatement
 			affectedRows
-		}		
+		}
 		dbLogger.debug("updatePassword res %s" format res.toString)
 		res
 	}
 
 	def hashAllPasswords = {
 		val q = for {
-			u <- User 
+			u <- User
 		} yield (u.uid, u.password)
 
 		val uids = db.withSession { session =>
@@ -127,5 +127,5 @@ trait UserStorage extends DBConfig with Hashing {
 		case x if x == 0 => output.dropRight(2) + ")"
 		case x if x == 1 => values(data.tail, "('" + data.head._2 + "', ")
 		case x => values(data.tail, output + "'" + data.head._2 + "', ")
-	}	
+	}
 }
