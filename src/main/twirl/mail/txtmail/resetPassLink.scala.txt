@@ -1,0 +1,14 @@
+@(otp: String)
+
+@import org.mojdan.md_backend.util.LinkGenerator._
+
+Zdravo,\n\r\n\r
+
+Klik na ovaj link:\n\r 
+@resetPass(otp) \n\r 
+će te odvesti na stranicu na kojoj možeš izmeniti svoju šifru za pristup aplikaciji Moj Dan.\n\r\n\r
+
+Ukoliko ti nisi zatražio ovu izmenu, slobodno ignoriši ovaj mejl.\n\r\n\r
+
+Pozdrav od MojDan.org tima!
+

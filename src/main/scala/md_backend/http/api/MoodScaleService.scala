@@ -28,34 +28,34 @@ import org.mojdan.md_backend.model._
 import org.mojdan.md_backend.model.TBJsonProtocol._
 import org.mojdan.md_backend.util._
 
-trait MoodScaleService extends HttpService with AppConfig{
+trait MoodScaleService extends HttpService with AppConfig {
 
 	import org.mojdan.md_backend.model.Tables
 
 	def postExperiences = (user: String, context: ActorContext) => {
-		entity(as[String]){s =>
+		entity(as[String]){ s =>
 			apiLogger.debug("POST /scales extracted {}", s)
 			Try(s.asJson.asJsObject.convertTo[MoodScalesRow]) match {
-				case Success(ms) => 
+				case Success(ms) =>
 					onComplete((context.actorFor("/user/application-actor") ? ms.copy(uid = user.toLong)).mapTo[Option[Long]]) {
-						case Success(res) => 
+						case Success(res) =>
 							val response = res match {
-								case Some(x) => complete(StatusCodes.OK)
+								case Some(x) => complete(StatusCodes.NoContent)
 								case None => complete(StatusCodes.InternalServerError)
 							}
 							response
-						case Failure(ex) => 
+						case Failure(ex) =>
 							apiLogger.error("POST /scales timeout, user %s, reason %s" format(user, ex))
 							complete(StatusCodes.InternalServerError)
 					}
-				case Failure(ex) => complete(StatusCodes.BadRequest)						
+				case Failure(ex) => complete(StatusCodes.BadRequest)
 			}
 		}
 	}
 
 	def scales = (user: String, context: ActorContext) => {
 		onComplete((context.actorFor("/user/application-actor") ? MoodScalesForUser(user.toLong)).mapTo[List[Tuple2[ActivityDiaryRow, MoodScalesRow]]]){
-			case Success(res) => 
+			case Success(res) =>
 				val r = res.length match {
 					case x if x == 0 => complete(StatusCodes.NoContent)
 					case x if x > 0 =>
@@ -66,7 +66,7 @@ trait MoodScaleService extends HttpService with AppConfig{
 						complete(response.toJson.toString)
 				}
 				r
-			case Failure(ex) => 
+			case Failure(ex) =>
 				apiLogger.error("GET /scales timeout, user %s, reason %s"format(user, ex))
 				complete(StatusCodes.InternalServerError)
 		}

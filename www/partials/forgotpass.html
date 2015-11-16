@@ -1,0 +1,23 @@
+<div class="col-md-4"></div>
+<div class="col-md-4 well margin-top-large" ng-controller="forgotPassCtrl">
+	<h3>Zaboravljena lozinka</h3>
+	<p class="alert alert-danger" ng-show="(reMsg() && !sent())">
+      <span class="glyphicon glyphicon-exclamation-sign"></span> Link za izmenu lozinke je istekao, pošalji nam zahtev ponovo.</p>
+	<form role="form">
+	  <div class="form-group">
+	    <label for="email">E-mail adresa</label>
+	    <input type="email" class="form-control" ng-model="email" required ng-disabled="resolved() && status < 300;">
+	  </div>
+     <p class="alert alert-success" ng-show="(resolved() && status == undefined);">
+      <span class="glyphicon glyphicon-ok"></span> Zahtev uspešno poslat! <br />
+      Uskoro ćete dobiti mejl sa uputstvom za izmenu lozinke.
+     </p>
+     <p class="alert alert-danger" ng-show="(status == 404)">
+      <span class="glyphicon glyphicon-exclamation-sign"></span> Nije pronađen korisnik za datu e-mail adresu.</p>
+     <p class="alert alert-danger" ng-show="(!resolved() && status == 500)">
+      <span class="glyphicon glyphicon-exclamation-sign"></span> Došlo je do greške...</p>
+     <p class="alert alert-danger" ng-show="(!resolved() && status == 400)">
+      <span class="glyphicon glyphicon-exclamation-sign"></span> Neispravan zahtev... </p>
+	  <button type="submit" class="btn btn-default" ng-click="save();" ng-disabled="(resolved() && status == undefined);">Pošalji</button>
+</form>
+<div class="col-md-4"></div>

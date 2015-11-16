@@ -1,0 +1,27 @@
+
+	<div class="col-md-4"></div>
+	<div class="col-md-4 well margin-top-large" ng-controller="passResetCtrl">
+		<h3>Promena zaboravljene lozinke</h3>
+		<form role="form">
+		  <div class="form-group">
+		    <label for="new_password">Nova lozinka</label>
+		    <input type="password" class="form-control" ng-model="new_password" required ng-disabled="resolved();">
+		  </div>
+		  <div class="form-group">
+		    <label for="new_password_repeat">Nova lozinka ponovo</label>
+		    <input type="password" class="form-control" ng-model="new_password_repeat" required ng-disabled="resolved();">
+		  </div>
+		  <p class="alert alert-danger" ng-show="!passwdMatch();">
+	      <span class="glyphicon glyphicon-exclamation-sign"></span> Lozinke nisu iste!</p>
+	     <p class="alert alert-success" ng-show="(passwdMatch() && new_pw_def()) && !sent();">
+	      <span class="glyphicon glyphicon-ok"></span> Lozinke su iste!</p>
+	     <p class="alert alert-success" ng-show="resolved() ;">
+	      <span class="glyphicon glyphicon-ok"></span> Izmena uspela!</p>
+
+	     <p class="alert alert-danger" ng-show="!resolved() && status == 500;">
+	      <span class="glyphicon glyphicon-exclamation-sign"></span> Došlo je do greške...</p>
+	     <p class="alert alert-danger" ng-show="!resolved() && status == 400;">
+	      <span class="glyphicon glyphicon-exclamation-sign"></span> Neispravan zahtev... </p>
+		  <button type="submit" class="btn btn-default" ng-click="save();" ng-disabled="(!( passwdMatch() && new_pw_def()) || resolved())">Pošalji</button>
+	</form>
+	<div class="col-md-4"></div>

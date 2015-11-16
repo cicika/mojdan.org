@@ -4,6 +4,8 @@ import akka.actor.{Actor, ActorRef, ActorContext}
 import akka.pattern.ask
 import akka.util.Timeout
 
+import java.io.File
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.util.{Success, Failure}
@@ -20,13 +22,13 @@ trait LoginService extends HttpService with UserAccountService
 																		   with PageService {
 	def route(ctxx: ActorContext) = {
 		method(HttpMethods.GET) {
-			path("passreset" / Segment){s =>
-				passResetForm(ctxx, s)
-			} ~
-			path("page" / Segment){pageId =>
+			path("page" / Segment){ pageId =>
 				page(pageId, ctxx)
 			} ~
-			path("/"){
+			path("www" / Segment / Segment){(arg1, fileName) =>
+				getFromFile(new File("www/%s/%s" format (arg1, fileName)))
+			} ~
+			pathSingleSlash{
 				index(ctxx)
 			}
 		} ~
@@ -34,7 +36,7 @@ trait LoginService extends HttpService with UserAccountService
 			pathPrefix("user"){
 				pathPrefix("login"){
 					login(ctxx)
-				} ~ 
+				} ~
 				pathPrefix("register"){
 					register(ctxx)
 				} ~
@@ -44,17 +46,18 @@ trait LoginService extends HttpService with UserAccountService
 				pathPrefix("forgotpass"){
 					forgotPass(ctxx)
 				}
-			} 
+			}
 		}
-	} 
+	}
 }
+
 trait TBApiService extends HttpService with UserAccountService
 																			 with ProgrammeService
 																			 with ActivityDiaryService
 																			 with MoodScaleService
 																			 with UserAuthentication
 																			 with IndexService
-																		 	 with PageService{
+																		 	 with PageService {
 
 	def tbApi(user: String, ctxx: ActorContext) = {
 		method(HttpMethods.GET){
@@ -73,8 +76,8 @@ trait TBApiService extends HttpService with UserAccountService
 			} ~
 			pathPrefix("scales"){
 				scales(user, ctxx)
-			} 
-		}	~ 
+			}
+		}	~
 		method(HttpMethods.POST){
 			path("page" / Segment){pageId =>
 				editPage(pageId, ctxx)
@@ -84,7 +87,7 @@ trait TBApiService extends HttpService with UserAccountService
 					postActivity(user, ctxx)
 				} ~
 				path("start"){
-					postStartMood(user, ctxx)	
+					postStartMood(user, ctxx)
 				}
 			} ~
 			pathPrefix("me"){
@@ -92,15 +95,14 @@ trait TBApiService extends HttpService with UserAccountService
 			} ~
 			pathPrefix("scales"){
 				postExperiences(user, ctxx)
-			}	
-		}~
-			complete(StatusCodes.NotFound)		
+			}
+		} ~
+			complete(StatusCodes.NotFound)
 	}
 }
 
 class TBApiServiceActor extends Actor with TBApiService {
 	def actorRefFactory = context
-
 	def receive = runRoute(authenticate(tbAuthenticator) {user => tbApi(user, context)})
 }
 
@@ -108,4 +110,3 @@ class LoginServiceActor extends Actor with LoginService {
 	def actorRefFactory = context
 	def receive = runRoute(route(context))
 }
-

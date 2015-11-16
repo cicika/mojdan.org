@@ -13,23 +13,24 @@ import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 import Q.interpolation
 
 sealed trait Config {
-	val config = ConfigFactory.load()	
+	val config = ConfigFactory.load()
 }
-trait AppConfig extends Config{		
 
+trait AppConfig extends Config {
 	val hostname = config.getString("mail.hostname")
 	val username = config.getString("mail.username")
 	val password = config.getString("mail.password")
-	val infoAddress = config.getString("mail.info")
-	val noReplyAddress = config.getString("mail.no-reply")
-	val adminAddress = config.getString("mail.admin")
+	val INFO = config.getString("mail.info")
+	val NO_REPLY = config.getString("mail.no-reply")
+	val ADMIN = config.getString("mail.admin")
+	val pwHashingEnabled = config.getBoolean("pass-hashing")
 
 	implicit val timeout = Timeout(15 seconds)
 
 	val apiLogger = LoggerFactory.getLogger(classOf[AppConfig])
 }
 
-trait DBConfig extends Config{
+trait DBConfig extends Config {
 	val dbUrl = "jdbc:postgresql://localhost/%s" format config.getString("db.database")
 	val dbDriver = "org.postgresql.Driver"
 	val dbUser = config.getString("db.username")
@@ -37,4 +38,10 @@ trait DBConfig extends Config{
 	val db = Database.forURL(dbUrl, driver = dbDriver, user = dbUser, password = dbPassword)
 
 	val dbLogger = LoggerFactory.getLogger(classOf[DBConfig])
+
+	val cryptoKey = config.getString("db.crypto-key")
+
+	val otpExpiry = config.getInt("expiry.otp")*60*60*1000l
+	val tokenExpiry = config.getInt("expiry.token")*60*60*1000l
+	val refreshTokenExpiry = config.getInt("expiry.refresh-token")*60*60*1000l
 }

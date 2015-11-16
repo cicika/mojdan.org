@@ -9,10 +9,10 @@ import java.util.Calendar
 import org.joda.time._
 import org.joda.time.format._
 
-/*
+case class GenerateFullProgrammeTasks(user: String)
 
 class TaskScheduling extends Actor {
-	
+
 	private val log = Logging(context.system, this)
 	private val config = context.system.settings.config
 
@@ -24,7 +24,6 @@ class TaskScheduling extends Actor {
 
 	def receive = {
 		case GenerateFullProgrammeTasks(user: String) =>
-
 		case Terminated(_) =>
 		case _ =>
 	}
@@ -35,7 +34,5 @@ class TaskScheduling extends Actor {
 		val month = currTime.getMonth()
 		val day = currTime.getDay()
 		val nextMsgTime = currTime
-
 	}
 }
-*/

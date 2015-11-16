@@ -10,26 +10,25 @@ import Q.interpolation
 
 import scala.annotation.tailrec
 
-
-trait UserStorage extends DBConfig{
-
+trait UserStorage extends DBConfig with Hashing {
 	import org.mojdan.md_backend.model.Tables
 
 	def login(l: Login):Option[Tuple2[Long, Option[String]]] = {
 		val q = for {
-							u <- User if (u.password === l.password && u.email === l.username)
+							u <- User if (u.password === hash(l.password) && u.email === l.username)
 							t <- Auth if (u.uid === t.uid)
 						} yield (u.uid, t.token)
 
 		val result = db.withSession { session =>
 			q.list()(session)
 		}
+		dbLogger.debug("Login result %s for data %s" format(result.toString, l.toString))
 		result.headOption
 	}
 
-	def register(accessToken: String, regData: Register):Long = db.withSession{ implicit session =>
-		val userId = (User returning User.map(_.uid)) += 
-		UserRow(-1, regData.email, regData.username, regData.password)
+	def register(accessToken: String, regData: Register):Long = db.withSession { implicit session =>
+		val userId = (User returning User.map(_.uid)) +=
+										UserRow(-1, regData.email, regData.username, hash(regData.password))
 		//Connectors += ConnectorsRow(userId, Some(regData.connector), None)
 		Auth += AuthRow(userId, Some(accessToken))
 		userId
@@ -40,9 +39,9 @@ trait UserStorage extends DBConfig{
         	t <- Auth if (t.token === accessToken)
     } yield t.uid
 
-    val result = db.withSession{session =>
-      q.list()(session)	
-    }	
+    val result = db.withSession { session =>
+      q.list()(session)
+    }
     result.headOption.map(e => e.toString)
 	}
 
@@ -57,24 +56,63 @@ trait UserStorage extends DBConfig{
 		res.headOption.map(u => UserRow(u._1, u._2, u._3, "", u._4, u._5))
 	}
 
+	def userData(email: String): Option[UserRow] = {
+		val q = for {
+			u <- User if (u.email === email)
+		} yield (u.uid, u.email, u.username, u.firstname, u.lastname)
+
+		val res = db.withSession { session =>
+			q.list()(session)
+		}
+		res.headOption.map(u => UserRow(u._1, u._2, u._3, "", u._4, u._5))
+	}
+
 	def update(data: Map[String, Any]) = {
 		import scala.slick.driver.JdbcDriver.backend.Database
 		import Database.dynamicSession
-
-		val query = "UPDATE user %s SET %s WHERE uid=%d" format ( 
-			fields(data.tail.map(e => (e._1.toString, e._2.toString)), ""), 
+		//TODO
+		val query = "UPDATE user %s SET %s WHERE uid=%d" format (
+			fields(data.tail.map(e => (e._1.toString, e._2.toString)), ""),
 			values(data.tail.map(e => (e._1.toString, e._2.toString)), ""), data("uid").asInstanceOf[Long])
 
-		//val q = withDynSession{
-		//	Q.update(query).execute
-		//}
-		/*val res = q.first() match {
-			case Some(x) if x == 0 => -1l
-			case Some(x) if x == 1 => data("uid").asInstanceOf[Long]
-			case None => -1l
-		}*/
 		data("uid").asInstanceOf[Long]
+	}
 
+	def updatePassword(email: String, newPassword: String) = {
+		val q = for {
+			u <- User if u.email === email
+		} yield u.password
+
+		val res = db.withSession { implicit session =>
+			val affectedRows = q.update(hash(newPassword))
+			q.updateInvoker
+			q.updateStatement
+			affectedRows
+		}
+		dbLogger.debug("updatePassword res %s" format res.toString)
+		res
+	}
+
+	def hashAllPasswords = {
+		val q = for {
+			u <- User
+		} yield (u.uid, u.password)
+
+		val uids = db.withSession { session =>
+			q.list()(session)
+		}.map(e => (e._1, hash(e._2)))
+
+		uids.foreach{e =>
+			val qi = for {
+				u <- User if u.uid === e._1
+			} yield u.password
+
+			db.withSession{ implicit session =>
+				qi.update(e._2)
+				qi.updateInvoker
+				qi.updateStatement
+			}
+		}
 	}
 
 	@tailrec
@@ -90,5 +128,4 @@ trait UserStorage extends DBConfig{
 		case x if x == 1 => values(data.tail, "('" + data.head._2 + "', ")
 		case x => values(data.tail, output + "'" + data.head._2 + "', ")
 	}
-	
 }

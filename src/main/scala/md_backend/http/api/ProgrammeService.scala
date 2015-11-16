@@ -31,7 +31,7 @@ trait ProgrammeService extends HttpService with AppConfig
 					complete(response.toJson.toString)
 				case _ => complete(StatusCodes.InternalServerError)
 			}
-			case Failure(ex) => 
+			case Failure(ex) =>
 				apiLogger.error("GET /programme/start timeout, user {}", user)
 				complete(StatusCodes.InternalServerError)
 		}
@@ -39,8 +39,8 @@ trait ProgrammeService extends HttpService with AppConfig
 
 	def restartProgramme = (user: String, context: ActorContext) => {
 		onComplete((context.actorFor("/user/application-actor") ? RestartProgramme(user.toLong)).mapTo[Done]){
-			case Success(x) => complete(StatusCodes.OK)
-			case Failure(ex) => 
+			case Success(x) => complete(StatusCodes.NoContent)
+			case Failure(ex) =>
 				apiLogger.error("GET /programme/restart timeout, user {}", user)
 				complete(StatusCodes.InternalServerError)
 		}
@@ -57,7 +57,7 @@ trait ProgrammeService extends HttpService with AppConfig
 				respondWithStatus(StatusCodes.OK)
 				complete(response.toJson.toString)
 
-			case Failure(ex) => 
+			case Failure(ex) =>
 				apiLogger.error("GET /programme/all timeout, user {}", user)
 				complete(StatusCodes.InternalServerError)
 		}
@@ -65,15 +65,15 @@ trait ProgrammeService extends HttpService with AppConfig
 
 	def dailyProgramme = (user: String, context: ActorContext) => {
 		onComplete((context.actorFor("/user/application-actor") ? DailyProgrammeForUser(user.toLong)).mapTo[List[ProgrammeRow]]){
-			case Success(res) => 
-				val response = 
+			case Success(res) =>
+				val response =
 					if(res.length == 1){
 						respondWithStatus(StatusCodes.OK)
 						complete(res.head.toJson.toString)
 					}
 					else complete(StatusCodes.NoContent)
 				response
-				
+
 			case Failure(ex) =>
 				apiLogger.error("GET /programme/active timeout, user {}", user)
 				complete(StatusCodes.InternalServerError)
@@ -82,9 +82,9 @@ trait ProgrammeService extends HttpService with AppConfig
 
 	def completedDays = (user: String, context: ActorContext) => {
 		onComplete((context.actorFor("/user/application-actor") ? CompletedDaysForUser(user.toLong)).mapTo[Option[CompletedRow]]){
-			case Success(res) => 
+			case Success(res) =>
 				val response = res match {
-					case Some(c) => 
+					case Some(c) =>
 						respondWithStatus(StatusCodes.OK)
 						complete(c.toJson.toString)
 					case None => complete(StatusCodes.NotFound)
@@ -94,5 +94,5 @@ trait ProgrammeService extends HttpService with AppConfig
 				apiLogger.error("GET /programme/completed timeout, for user {}", user)
 				complete(StatusCodes.InternalServerError)
 		}
-	} 	
-}   
+	}
+}
