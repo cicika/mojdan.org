@@ -9,6 +9,8 @@ import java.util.Calendar
 import org.joda.time._
 import org.joda.time.format._
 
+case class GenerateFullProgrammeTasks(user: String)
+
 class TaskScheduling extends Actor {
 
 	private val log = Logging(context.system, this)
